@@ -8,7 +8,9 @@ import {
   Param, 
   Query,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  UseInterceptors,
+  Request,
 } from '@nestjs/common';
 import { AgreementsService } from './agreements.service';
 import { CreateAgreementDto } from './dto/create-agreement.dto';
@@ -16,8 +18,10 @@ import { UpdateAgreementDto } from './dto/update-agreement.dto';
 import { RecordPaymentDto } from './dto/record-payment.dto';
 import { TerminateAgreementDto } from './dto/terminate-agreement.dto';
 import { QueryAgreementsDto } from './dto/query-agreements.dto';
+import { AuditLogInterceptor } from '../audit/interceptors/audit-log.interceptor';
 
 @Controller('api/agreements')
+@UseInterceptors(AuditLogInterceptor)
 export class AgreementsController {
   constructor(private readonly agreementsService: AgreementsService) {}
 
