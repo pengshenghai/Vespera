@@ -3,31 +3,22 @@
 import Sidebar from "../../components/landlord-dashboard/Sidebar";
 import Topbar from "../../components/landlord-dashboard/Topbar";
 import { usePathname } from "next/navigation";
+import { ReactNode } from "react";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-  pageTitle: string;
-}) {
-
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
+  const pageTitleMap: Record<string, string> = {
+    "/landlords": "Dashboard Overview",
+    "/landlords/properties": "Properties",
+    "/landlords/tenants": "Tenants",
+    "/landlords/financials": "Financials",
+    "/landlords/maintenance": "Maintenance",
+    "/landlords/documents": "Documents",
+    "/landlords/settings": "Settings",
+  };
 
-const pageTitleMap: Record<string, string> = {
-"/landlords": "Dashboard Overview",
-"/landlords/properties": "Properties",
-"/landlords/tenants": "Tenants",
-"/landlords/financials": "Financials",
-"/landlords/maintenance": "Maintenance",
-"/landlords/documents": "Documents",
-"/landlords/settings": "Settings",
-};
-
-
-const pageTitle =
-pageTitleMap[pathname] ?? "Dashboard";
-
+  const pageTitle = pageTitleMap[pathname] ?? "Dashboard";
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-x-hidden">
