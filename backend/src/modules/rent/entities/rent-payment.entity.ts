@@ -5,7 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm';
-import { RentContract } from './rent-contract.entity';
+import { RentAgreement } from './rent-contract.entity';
 
 @Entity('rent_payments')
 export class RentPayment {
@@ -18,8 +18,8 @@ export class RentPayment {
   @Column({ default: 'pending' })
   status: string;
 
-  @ManyToOne(() => RentContract, (contract) => contract.payments)
-  contract: RentContract;
+  @ManyToOne(() => RentAgreement, (agreement) => agreement.payments)
+  agreement: RentAgreement;
 
   @CreateDateColumn()
   paidAt: Date;

@@ -19,7 +19,7 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: "Find a Home", href: "/" },
+    { name: "Find a Home", href: "/properties" },
     { name: "For Landlords", href: "/landlords" },
     { name: "For Agents", href: "/agents" },
     { name: "Resources", href: "/resources" },
@@ -32,7 +32,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`top-0 left-0 right-0 z-50 transition-all duration-300 sticky ${
         isScrolled ? "glass py-3" : "bg-transparent py-6"
       }`}
     >
