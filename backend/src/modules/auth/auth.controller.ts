@@ -140,7 +140,10 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<AuthResponseDto | { mfaRequired: true; mfaToken: string; user: AuthResponseDto['user'] }> {
+  ): Promise<
+    | AuthResponseDto
+    | { mfaRequired: true; mfaToken: string; user: AuthResponseDto['user'] }
+  > {
     const startTime = Date.now();
 
     try {
@@ -148,7 +151,11 @@ export class AuthController {
       const duration = Date.now() - startTime;
 
       // If MFA is required, return MFA token
-      if ('mfaRequired' in result && result.mfaRequired && 'mfaToken' in result) {
+      if (
+        'mfaRequired' in result &&
+        result.mfaRequired &&
+        'mfaToken' in result
+      ) {
         return {
           mfaRequired: true,
           mfaToken: result.mfaToken as string,
@@ -171,8 +178,12 @@ export class AuthController {
       });
 
       // Don't return refreshToken in response body when using cookies
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { refreshToken: _refreshToken, mfaRequired: _mfaRequired, ...responseWithoutRefresh } = result;
+
+      const {
+        refreshToken: _refreshToken,
+        mfaRequired: _mfaRequired,
+        ...responseWithoutRefresh
+      } = result;
       return responseWithoutRefresh as AuthResponseDto;
     } catch (error: unknown) {
       const duration = Date.now() - startTime;

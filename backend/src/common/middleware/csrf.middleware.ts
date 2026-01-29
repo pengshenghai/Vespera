@@ -27,7 +27,9 @@ export class CsrfMiddleware implements NestMiddleware {
       this.configService.get<string>('SECURITY_SESSION_SECRET') ||
       this.configService.get<string>('JWT_SECRET');
     if (this.enabled && !secret) {
-      throw new Error('SECURITY_SESSION_SECRET (or JWT_SECRET) is required when CSRF is enabled');
+      throw new Error(
+        'SECURITY_SESSION_SECRET (or JWT_SECRET) is required when CSRF is enabled',
+      );
     }
     this.secret = secret ?? '';
   }

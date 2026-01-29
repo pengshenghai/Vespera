@@ -46,8 +46,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const correlationId =
       (req.headers['x-request-id'] as string | undefined) || randomUUID();
 
-    (req as Request & { correlationId?: string }).correlationId =
-      correlationId;
+    (req as Request & { correlationId?: string }).correlationId = correlationId;
     res.setHeader('x-request-id', correlationId);
 
     const method = req.method;
@@ -56,7 +55,9 @@ export class LoggerMiddleware implements NestMiddleware {
     const ip =
       (typeof forwardedFor === 'string'
         ? forwardedFor.split(',')[0]?.trim()
-        : null) || req.socket.remoteAddress || 'unknown';
+        : null) ||
+      req.socket.remoteAddress ||
+      'unknown';
 
     const userAgent = req.headers['user-agent'] || undefined;
     const requestHeaders = sanitizeHeaders(

@@ -57,4 +57,3 @@ export const COMMON_PASSWORDS: readonly string[] = [
   'jesus',
   'ninja',
 ];
-
