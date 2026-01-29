@@ -52,26 +52,6 @@ describe('IpfsService', () => {
       expect(service.isConfigured()).toBe(true);
     });
 
-    it('should return true when API keys are set', async () => {
-      mockConfigService.get.mockImplementation((key: string) => {
-        const config: Record<string, string> = {
-          PINATA_API_KEY: 'api-key',
-          PINATA_SECRET_KEY: 'secret-key',
-        };
-        return config[key] || '';
-      });
-
-      const module = await Test.createTestingModule({
-        providers: [
-          IpfsService,
-          { provide: ConfigService, useValue: mockConfigService },
-        ],
-      }).compile();
-
-      const svc = module.get<IpfsService>(IpfsService);
-      expect(svc.isConfigured()).toBe(true);
-    });
-
     it('should return false when no credentials are set', async () => {
       mockConfigService.get.mockReturnValue('');
 

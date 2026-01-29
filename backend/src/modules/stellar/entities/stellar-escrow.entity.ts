@@ -98,10 +98,20 @@ export class StellarEscrow {
   @Column({ name: 'refunded_at', type: 'timestamp', nullable: true })
   refundedAt: Date | null;
 
-  @Column({ name: 'release_transaction_hash', type: 'varchar', length: 64, nullable: true })
+  @Column({
+    name: 'release_transaction_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   releaseTransactionHash: string | null;
 
-  @Column({ name: 'refund_transaction_hash', type: 'varchar', length: 64, nullable: true })
+  @Column({
+    name: 'refund_transaction_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   refundTransactionHash: string | null;
 
   @Column({ name: 'rent_agreement_id', type: 'uuid', nullable: true })

@@ -289,23 +289,31 @@ describe('ProfileService', () => {
 
   describe('getProfileByWallet', () => {
     it('should return profile by wallet address', async () => {
+      const testHash =
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
       mockSorobanClient.verifyStellarAddress.mockReturnValue(true);
       mockProfileContract.getProfile.mockResolvedValue({
         owner: mockUser.walletAddress,
         version: 1,
         accountType: 0,
         lastUpdated: Date.now(),
-        dataHash: 'a'.repeat(64),
+        dataHash: testHash,
         isVerified: true,
       });
-      mockProfileMetadataRepository.findOne.mockResolvedValue(
-        mockProfileMetadata,
-      );
+      mockProfileMetadataRepository.findOne.mockResolvedValue({
+        ...mockProfileMetadata,
+        dataHash: testHash,
+      });
       mockIpfsService.getGatewayUrl.mockReturnValue('https://gateway/ipfs/cid');
 
       const result = await service.getProfileByWallet(mockUser.walletAddress!);
 
       expect(result.walletAddress).toBe(mockUser.walletAddress);
+      expect(result.onChain).not.toBeNull();
+      expect(result.offChain).not.toBeNull();
+      expect(result.onChain?.dataHash).toBe(testHash);
+      expect(result.offChain?.dataHash).toBe(testHash);
       expect(result.dataIntegrityValid).toBe(true);
     });
 
@@ -320,14 +328,23 @@ describe('ProfileService', () => {
 
   describe('verifyDataIntegrity', () => {
     it('should verify data integrity successfully', async () => {
+      const testHash =
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
       mockUserRepository.findOne.mockResolvedValue(mockUser);
-      mockProfileMetadataRepository.findOne.mockResolvedValue(
-        mockProfileMetadata,
-      );
-      mockIpfsService.computeDataHashHex.mockReturnValue('a'.repeat(64));
+      mockProfileMetadataRepository.findOne.mockResolvedValue({
+        ...mockProfileMetadata,
+        dataHash: testHash,
+      });
+      mockIpfsService.computeDataHashHex.mockReturnValue(testHash);
       mockIpfsService.verifyDataIntegrity.mockResolvedValue(true);
       mockProfileContract.getProfile.mockResolvedValue({
-        dataHash: 'a'.repeat(64),
+        owner: mockUser.walletAddress,
+        version: 1,
+        accountType: 0,
+        lastUpdated: Date.now(),
+        dataHash: testHash,
+        isVerified: true,
       });
 
       const result = await service.verifyDataIntegrity('user-123');

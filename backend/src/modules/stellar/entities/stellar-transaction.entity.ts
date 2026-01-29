@@ -84,13 +84,29 @@ export class StellarTransaction {
   @Column({ type: 'integer', nullable: true })
   ledger: number | null;
 
-  @Column({ name: 'source_account', type: 'varchar', length: 56, nullable: true })
+  @Column({
+    name: 'source_account',
+    type: 'varchar',
+    length: 56,
+    nullable: true,
+  })
   sourceAccount: string | null;
 
-  @Column({ name: 'destination_account', type: 'varchar', length: 56, nullable: true })
+  @Column({
+    name: 'destination_account',
+    type: 'varchar',
+    length: 56,
+    nullable: true,
+  })
   destinationAccount: string | null;
 
-  @Column({ name: 'idempotency_key', type: 'varchar', length: 64, nullable: true, unique: true })
+  @Column({
+    name: 'idempotency_key',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    unique: true,
+  })
   idempotencyKey: string | null;
 
   @Column({ name: 'error_message', type: 'text', nullable: true })
