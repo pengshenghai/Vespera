@@ -32,11 +32,11 @@ impl Contract {
     }
 
     /// Initialize the contract with an admin and configuration.
-    /// 
+    ///
     /// # Arguments
     /// * `admin` - The address that will have admin privileges
     /// * `config` - Initial configuration parameters
-    /// 
+    ///
     /// # Errors
     /// * `AlreadyInitialized` - If the contract has already been initialized
     /// * `InvalidConfig` - If the configuration parameters are invalid
