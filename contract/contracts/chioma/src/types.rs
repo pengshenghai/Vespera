@@ -1,7 +1,5 @@
-//! Data structures for the Chioma/Rental contract.
 use soroban_sdk::{contracttype, Address, Map, String};
 
-/// Status of a rental agreement throughout its lifecycle.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AgreementStatus {
@@ -14,7 +12,6 @@ pub enum AgreementStatus {
     Disputed,
 }
 
-/// Represents a rental agreement between landlord and tenant.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RentAgreement {
@@ -36,8 +33,6 @@ pub struct RentAgreement {
     pub payment_history: Map<u32, PaymentSplit>,
 }
 
-/// Payment split information for rent payments.
-/// Kept in chioma contract as it's part of agreement state.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PaymentSplit {
@@ -51,11 +46,8 @@ pub struct PaymentSplit {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Config {
-    /// Fee percentage in basis points (e.g., 100 = 1%)
     pub fee_bps: u32,
-    /// Address to collect fees
     pub fee_collector: Address,
-    /// Whether the contract is paused
     pub paused: bool,
 }
 
