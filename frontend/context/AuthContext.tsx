@@ -4,7 +4,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   ReactNode,
 } from 'react';
@@ -74,16 +73,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    accessToken: null,
-    refreshToken: null,
-    isAuthenticated: false,
-    loading: true, // starts true while we hydrate from localStorage
-  });
-
-  // Hydrate auth state from localStorage on mount
-  useEffect(() => {
+  // Lazy initializer — reads localStorage once on first render.
+  // Avoids calling setState inside a useEffect (react-hooks/set-state-in-effect).
+  const [state, setState] = useState<AuthState>(() => {
+    // localStorage is only available in the browser
+    if (typeof window === 'undefined') {
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        loading: false,
+      };
+    }
     try {
       const storedAccessToken = localStorage.getItem(
         AUTH_STORAGE_KEYS.ACCESS_TOKEN,
@@ -94,26 +96,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUser = localStorage.getItem(AUTH_STORAGE_KEYS.USER);
 
       if (storedAccessToken && storedUser) {
-        const user: User = JSON.parse(storedUser);
-        setState({
-          user,
+        return {
+          user: JSON.parse(storedUser) as User,
           accessToken: storedAccessToken,
           refreshToken: storedRefreshToken,
           isAuthenticated: true,
           loading: false,
-        });
-      } else {
-        setState((prev) => ({ ...prev, loading: false }));
+        };
       }
     } catch {
-      // If anything fails (corrupted storage, etc.) just reset
+      // Corrupted storage — clear it and start fresh
       localStorage.removeItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
       localStorage.removeItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN);
       localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
       removeAuthCookie();
-      setState((prev) => ({ ...prev, loading: false }));
     }
-  }, []);
+    return {
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      loading: false,
+    };
+  });
 
   /**
    * Directly set tokens & user (useful after registration or
