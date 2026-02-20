@@ -1,7 +1,7 @@
 #![no_std]
 #![allow(clippy::too_many_arguments)]
 
-use soroban_sdk::{contract, contractimpl, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, Address, Env, String};
 
 mod agreement;
 mod errors;
