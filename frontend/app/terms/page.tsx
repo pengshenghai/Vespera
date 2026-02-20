@@ -145,7 +145,7 @@ export default function TermsOfService() {
             <p className="text-slate-600 leading-relaxed">
               We reserve the right to modify these terms at any time. We will
               notify users of any material changes by posting the new Terms of
-              Service on this page and updating the "Last updated" date.
+              Service on this page and updating the &quot;Last updated&quot; date.
             </p>
           </section>
 
