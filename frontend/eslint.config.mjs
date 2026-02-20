@@ -5,6 +5,13 @@ import nextTs from 'eslint-config-next/typescript';
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Allow Node-style require imports in the alt-text verification script.
+  {
+    files: ['scripts/verify-alt-text.js'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   // Enforce descriptive alt text on all images (including Next.js Image).
   {
     files: ['**/*.tsx', '**/*.jsx'],

@@ -46,12 +46,10 @@ function hasImageImport(content) {
 
 function findImageUsages(content, filePath) {
   const violations = [];
-  const lines = content.split(/\r?\n/);
 
   // Match <Image ... /> or <Image ...> (we look for alt in the opening tag)
   const imageTagRegex = /<Image\s([^>]*?)(?:\/>|>)/gs;
   let match;
-  let lastIndex = 0;
 
   while ((match = imageTagRegex.exec(content)) !== null) {
     const tagContent = match[1];
