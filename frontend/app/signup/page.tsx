@@ -104,7 +104,11 @@ export default function SignupPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5"
+            noValidate
+          >
             {/* Role Toggle */}
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">
@@ -115,7 +119,9 @@ export default function SignupPage() {
                   <button
                     key={role}
                     type="button"
-                    onClick={() => setValue('role', role, { shouldValidate: true })}
+                    onClick={() =>
+                      setValue('role', role, { shouldValidate: true })
+                    }
                     className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                       selectedRole === role
                         ? 'bg-white text-brand-blue shadow-sm'
@@ -221,7 +227,10 @@ export default function SignupPage() {
 
           <p className="text-center text-white/60 text-sm mt-6">
             Already have an account?{' '}
-            <Link href="/login" className="text-white font-medium hover:underline">
+            <Link
+              href="/login"
+              className="text-white font-medium hover:underline"
+            >
               Sign in
             </Link>
           </p>

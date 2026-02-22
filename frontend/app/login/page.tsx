@@ -68,7 +68,9 @@ export default function LoginPage() {
             </span>
           </Link>
           <h1 className="text-3xl font-bold text-white">Welcome back</h1>
-          <p className="text-white/70 mt-2">Sign in to your account to continue</p>
+          <p className="text-white/70 mt-2">
+            Sign in to your account to continue
+          </p>
         </div>
 
         {/* Glass Form Card */}
@@ -79,7 +81,11 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5"
+            noValidate
+          >
             <div>
               <label
                 htmlFor="email"
@@ -137,7 +143,10 @@ export default function LoginPage() {
 
           <p className="text-center text-white/60 text-sm mt-6">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-white font-medium hover:underline">
+            <Link
+              href="/signup"
+              className="text-white font-medium hover:underline"
+            >
               Create one
             </Link>
           </p>
