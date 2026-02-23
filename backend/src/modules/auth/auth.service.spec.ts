@@ -151,6 +151,7 @@ describe('AuthService', () => {
       expect(result.user.email).toBe(registerDto.email);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { email: registerDto.email },
+        withDeleted: true,
       });
       expect(mockUserRepository.save).toHaveBeenCalled();
       expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(

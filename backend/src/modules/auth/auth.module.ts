@@ -59,4 +59,4 @@ import { PasswordPolicyService } from './services/password-policy.service';
     PassportModule,
   ],
 })
-export class AuthModule { }
+export class AuthModule {}

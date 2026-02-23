@@ -49,7 +49,7 @@ export class AuthService {
     private configService: ConfigService,
     private passwordPolicyService: PasswordPolicyService,
     private emailService: EmailService,
-  ) { }
+  ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
     const { email, password, firstName, lastName, role } = registerDto;
@@ -91,8 +91,14 @@ export class AuthService {
     this.logger.log(`User registered successfully: ${savedUser.id}`);
 
     // Send verification email asynchronously
-    this.emailService.sendVerificationEmail(savedUser.email, verificationToken)
-      .catch(error => this.logger.error(`Failed to send verification email for ${savedUser.email}`, error));
+    this.emailService
+      .sendVerificationEmail(savedUser.email, verificationToken)
+      .catch((error) =>
+        this.logger.error(
+          `Failed to send verification email for ${savedUser.email}`,
+          error,
+        ),
+      );
 
     const { accessToken, refreshToken } = this.generateTokens(
       savedUser.id,
@@ -110,7 +116,9 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto): Promise<AuthSuccessResponseDto | MfaRequiredResponseDto> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<AuthSuccessResponseDto | MfaRequiredResponseDto> {
     const { email, password } = loginDto;
 
     const user = await this.userRepository.findOne({
@@ -348,8 +356,14 @@ export class AuthService {
     this.logger.log(`Password reset token generated for user: ${user.id}`);
 
     // Send password reset email asynchronously
-    this.emailService.sendPasswordResetEmail(user.email, resetToken)
-      .catch(error => this.logger.error(`Failed to send password reset email for ${user.email}`, error));
+    this.emailService
+      .sendPasswordResetEmail(user.email, resetToken)
+      .catch((error) =>
+        this.logger.error(
+          `Failed to send password reset email for ${user.email}`,
+          error,
+        ),
+      );
 
     return {
       message:
