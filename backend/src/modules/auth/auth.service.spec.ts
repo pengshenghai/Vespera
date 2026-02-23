@@ -6,11 +6,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { User, UserRole } from '../users/entities/user.entity';
-import {
-  MfaDevice,
-  MfaDeviceStatus,
-  MfaDeviceType,
-} from './entities/mfa-device.entity';
+import { MfaDevice } from './entities/mfa-device.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -21,16 +17,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PasswordPolicyService } from './services/password-policy.service';
-import {
-  AuthSuccessResponseDto,
-  MfaRequiredResponseDto,
-} from './dto/auth-response.dto';
+import { EmailService } from '../notifications/email.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let userRepository: Repository<User>;
   let jwtService: JwtService;
   let configService: ConfigService;
+  let emailService: EmailService;
 
   const mockUser: Partial<User> = {
     id: 'test-user-id',
@@ -61,11 +55,6 @@ describe('AuthService', () => {
     update: jest.fn(),
   };
 
-  const mockMfaDeviceRepository = {
-    findOne: jest.fn(),
-    save: jest.fn(),
-  };
-
   const mockJwtService = {
     sign: jest.fn(),
     verify: jest.fn(),
@@ -93,7 +82,7 @@ describe('AuthService', () => {
         },
         {
           provide: getRepositoryToken(MfaDevice),
-          useValue: mockMfaDeviceRepository,
+          useValue: { findOne: jest.fn(), save: jest.fn() },
         },
         {
           provide: JwtService,
@@ -109,6 +98,13 @@ describe('AuthService', () => {
             validatePassword: jest.fn().mockResolvedValue(undefined),
           },
         },
+        {
+          provide: EmailService,
+          useValue: {
+            sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+            sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
@@ -116,11 +112,11 @@ describe('AuthService', () => {
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     jwtService = module.get<JwtService>(JwtService);
     configService = module.get<ConfigService>(ConfigService);
+    emailService = module.get<EmailService>(EmailService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    jest.restoreAllMocks();
   });
 
   describe('register', () => {
@@ -158,6 +154,10 @@ describe('AuthService', () => {
         withDeleted: true,
       });
       expect(mockUserRepository.save).toHaveBeenCalled();
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        registerDto.email,
+        expect.any(String),
+      );
     });
 
     it('should throw ConflictException if email already exists', async () => {
@@ -226,6 +226,7 @@ describe('AuthService', () => {
       );
     });
 
+<<<<<<< HEAD
     it('should return generic error for inactive account (prevent user enumeration)', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
@@ -314,6 +315,8 @@ describe('AuthService', () => {
       );
     });
 
+=======
+>>>>>>> upstream/main
     it('should throw UnauthorizedException for inactive account', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
@@ -322,7 +325,7 @@ describe('AuthService', () => {
 
       mockUserRepository.findOne.mockResolvedValue({
         ...mockUser,
-        isActive: false,
+        status: 'inactive',
       });
 
       await expect(service.login(loginDto)).rejects.toThrow(
@@ -338,7 +341,8 @@ describe('AuthService', () => {
 
       const lockedUser = {
         ...mockUser,
-        accountLockedUntil: new Date(Date.now() + 30 * 60 * 1000),
+        accountLocked: true,
+        lockedUntil: new Date(Date.now() + 30 * 60 * 1000),
       };
 
       mockUserRepository.findOne.mockResolvedValue(lockedUser);
@@ -363,6 +367,10 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('message');
       expect(result.message).toContain('If an account exists');
       expect(mockUserRepository.save).toHaveBeenCalled();
+      expect(emailService.sendPasswordResetEmail).toHaveBeenCalledWith(
+        forgotPasswordDto.email,
+        expect.any(String),
+      );
     });
 
     it('should return generic message for non-existent email (security)', async () => {

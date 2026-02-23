@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { EmailService } from '../notifications/email.service';
 import { User } from '../users/entities/user.entity';
 import {
   MfaDevice,
@@ -47,6 +48,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private passwordPolicyService: PasswordPolicyService,
+    private emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
@@ -87,6 +89,16 @@ export class AuthService {
 
     const savedUser = await this.userRepository.save(user);
     this.logger.log(`User registered successfully: ${savedUser.id}`);
+
+    // Send verification email asynchronously
+    this.emailService
+      .sendVerificationEmail(savedUser.email, verificationToken)
+      .catch((error) =>
+        this.logger.error(
+          `Failed to send verification email for ${savedUser.email}`,
+          error,
+        ),
+      );
 
     const { accessToken, refreshToken } = this.generateTokens(
       savedUser.id,
@@ -342,6 +354,16 @@ export class AuthService {
 
     await this.userRepository.save(user);
     this.logger.log(`Password reset token generated for user: ${user.id}`);
+
+    // Send password reset email asynchronously
+    this.emailService
+      .sendPasswordResetEmail(user.email, resetToken)
+      .catch((error) =>
+        this.logger.error(
+          `Failed to send password reset email for ${user.email}`,
+          error,
+        ),
+      );
 
     return {
       message:
