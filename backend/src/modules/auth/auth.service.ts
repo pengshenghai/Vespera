@@ -23,7 +23,12 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthResponseDto, MessageResponseDto } from './dto/auth-response.dto';
+import {
+  AuthSuccessResponseDto,
+  MfaRequiredResponseDto,
+  AuthResponseDto,
+  MessageResponseDto,
+} from './dto/auth-response.dto';
 import { PasswordPolicyService } from './services/password-policy.service';
 
 const SALT_ROUNDS = 12;
@@ -46,7 +51,7 @@ export class AuthService {
     private emailService: EmailService,
   ) { }
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+  async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
     const { email, password, firstName, lastName, role } = registerDto;
 
     // Validate password against policy
@@ -54,9 +59,15 @@ export class AuthService {
 
     const existingUser = await this.userRepository.findOne({
       where: { email: email.toLowerCase() },
+      withDeleted: true,
     });
 
     if (existingUser) {
+      if (existingUser.deletedAt) {
+        throw new ConflictException(
+          'This email is associated with a deleted account. Please restore your account to continue.',
+        );
+      }
       this.logger.warn(`Registration attempt for existing email: ${email}`);
       throw new ConflictException('Email already registered');
     }
@@ -95,10 +106,11 @@ export class AuthService {
       user: this.sanitizeUser(savedUser),
       accessToken,
       refreshToken,
+      mfaRequired: false,
     };
   }
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+  async login(loginDto: LoginDto): Promise<AuthSuccessResponseDto | MfaRequiredResponseDto> {
     const { email, password } = loginDto;
 
     const user = await this.userRepository.findOne({
@@ -112,7 +124,7 @@ export class AuthService {
 
     if (!user.isActive) {
       this.logger.warn(`Login attempt for inactive account: ${email}`);
-      throw new UnauthorizedException('Account has been deactivated');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     if (user.accountLockedUntil) {
@@ -122,9 +134,7 @@ export class AuthService {
           (user.accountLockedUntil.getTime() - now.getTime()) / (1000 * 60),
         );
         this.logger.warn(`Login attempt for locked account: ${email}`);
-        throw new UnauthorizedException(
-          `Account is locked. Try again in ${minutesRemaining} minutes`,
-        );
+        throw new UnauthorizedException('Invalid email or password');
       } else {
         user.accountLockedUntil = null;
         user.failedLoginAttempts = 0;
@@ -170,13 +180,12 @@ export class AuthService {
       );
 
       this.logger.log(`MFA required for user: ${user.id}`);
-      return {
+      const mfaResponse: MfaRequiredResponseDto = {
         user: this.sanitizeUser(user),
-        accessToken: null,
-        refreshToken: null,
         mfaRequired: true,
         mfaToken: tempToken,
-      } as AuthResponseDto & { mfaRequired: true; mfaToken: string };
+      };
+      return mfaResponse;
     }
 
     this.logger.log(`User logged in successfully: ${user.id}`);
@@ -200,7 +209,7 @@ export class AuthService {
   /**
    * Complete login after MFA verification
    */
-  async completeMfaLogin(mfaToken: string): Promise<AuthResponseDto> {
+  async completeMfaLogin(mfaToken: string): Promise<AuthSuccessResponseDto> {
     try {
       // Verify temporary MFA token
       const payload = this.jwtService.verify<{
@@ -239,6 +248,7 @@ export class AuthService {
         user: this.sanitizeUser(user),
         accessToken,
         refreshToken,
+        mfaRequired: false,
       };
     } catch (error: unknown) {
       const message =
@@ -350,7 +360,7 @@ export class AuthService {
   private getJwtSecret(): string {
     const secret = this.configService.get<string>('JWT_SECRET');
     if (!secret) {
-      throw new Error('JWT_SECRET is required');
+      throw new Error('JWT_SECRET environment variable is required');
     }
     return secret;
   }
@@ -358,7 +368,7 @@ export class AuthService {
   private getJwtRefreshSecret(): string {
     const secret = this.configService.get<string>('JWT_REFRESH_SECRET');
     if (!secret) {
-      throw new Error('JWT_REFRESH_SECRET is required');
+      throw new Error('JWT_REFRESH_SECRET environment variable is required');
     }
     return secret;
   }
@@ -476,8 +486,7 @@ export class AuthService {
         type: 'access',
       },
       {
-        secret:
-          this.configService.get<string>('JWT_SECRET') || 'your-secret-key',
+        secret: this.getJwtSecret(),
         expiresIn: '15m',
       },
     );
@@ -490,9 +499,7 @@ export class AuthService {
         type: 'refresh',
       },
       {
-        secret:
-          this.configService.get<string>('JWT_REFRESH_SECRET') ||
-          'your-refresh-secret-key',
+        secret: this.getJwtRefreshSecret(),
         expiresIn: '7d',
       },
     );
