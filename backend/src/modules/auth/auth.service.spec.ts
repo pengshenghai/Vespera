@@ -6,7 +6,11 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { User, UserRole } from '../users/entities/user.entity';
-import { MfaDevice, MfaDeviceType, MfaDeviceStatus } from './entities/mfa-device.entity';
+import {
+  MfaDevice,
+  MfaDeviceType,
+  MfaDeviceStatus,
+} from './entities/mfa-device.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -18,7 +22,10 @@ import {
 } from '@nestjs/common';
 import { PasswordPolicyService } from './services/password-policy.service';
 import { EmailService } from '../notifications/email.service';
-import { AuthSuccessResponseDto, MfaRequiredResponseDto } from './dto/auth-response.dto';
+import {
+  AuthSuccessResponseDto,
+  MfaRequiredResponseDto,
+} from './dto/auth-response.dto';
 // Add mock for MfaDeviceRepository
 const mockMfaDeviceRepository = {
   findOne: jest.fn(),
@@ -232,7 +239,7 @@ describe('AuthService', () => {
       );
     });
 
-// --- Conflict marker removed ---
+    // --- Conflict marker removed ---
     it('should return generic error for inactive account (prevent user enumeration)', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
@@ -321,8 +328,8 @@ describe('AuthService', () => {
       );
     });
 
-// --- Conflict marker removed ---
-// --- Conflict marker removed ---
+    // --- Conflict marker removed ---
+    // --- Conflict marker removed ---
     it('should throw UnauthorizedException for inactive account', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
@@ -344,7 +351,6 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password: 'wrongpassword',
       };
-
 
       const lockedUser = {
         ...mockUser,
