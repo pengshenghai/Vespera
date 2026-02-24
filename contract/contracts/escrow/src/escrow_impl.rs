@@ -108,7 +108,7 @@ impl EscrowContract {
 
         // INTERACTIONS: Token transfer from depositor to escrow contract
         let token_client = token::Client::new(&env, &escrow.token);
-        token_client.transfer(&caller, &env.current_contract_address(), &escrow.amount);
+        token_client.transfer(&caller, env.current_contract_address(), &escrow.amount);
 
         Ok(())
     }
