@@ -1,9 +1,9 @@
 //! Tests for the Escrow contract.
 
 use soroban_sdk::testutils::{Address as _, Ledger};
-use soroban_sdk::{Address, BytesN, Env};
 use soroban_sdk::token::Client as TokenClient;
 use soroban_sdk::token::StellarAssetClient as TokenAdminClient;
+use soroban_sdk::{Address, Env};
 
 use crate::escrow_impl::{EscrowContract, EscrowContractClient};
 use crate::types::EscrowStatus;
@@ -140,7 +140,7 @@ fn test_unique_escrow_ids() {
     let escrow_id1 = env
         .as_contract(&contract_id, || {
             EscrowContract::create(
-                &env,
+                env.clone(),
                 depositor.clone(),
                 beneficiary.clone(),
                 arbiter.clone(),
@@ -155,7 +155,7 @@ fn test_unique_escrow_ids() {
     let escrow_id2 = env
         .as_contract(&contract_id, || {
             EscrowContract::create(
-                &env,
+                env.clone(),
                 depositor.clone(),
                 beneficiary.clone(),
                 arbiter.clone(),
@@ -169,13 +169,13 @@ fn test_unique_escrow_ids() {
 
     let escrow1 = env
         .as_contract(&contract_id, || {
-            EscrowContract::get_escrow(&env, &escrow_id1)
+            EscrowContract::get_escrow(env.clone(), escrow_id1.clone())
         })
         .unwrap();
 
     let escrow2 = env
         .as_contract(&contract_id, || {
-            EscrowContract::get_escrow(&env, &escrow_id2)
+            EscrowContract::get_escrow(env.clone(), escrow_id2.clone())
         })
         .unwrap();
 

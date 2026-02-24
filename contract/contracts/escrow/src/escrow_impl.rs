@@ -1,6 +1,6 @@
 //! Core escrow lifecycle logic: creation, funding, approvals, and release.
 //! Implements checks-effects-interactions pattern for reentrancy safety.
-use soroban_sdk::{xdr::ToXdr, contract, contractimpl, token, Address, BytesN, Env, Vec};
+use soroban_sdk::{contract, contractimpl, token, xdr::ToXdr, Address, BytesN, Env, Vec};
 
 use crate::dispute::DisputeHandler;
 
@@ -48,13 +48,13 @@ impl EscrowContract {
         }
 
         // Generate unique escrow ID from hash of parameters
-        let mut data = soroban_sdk::Bytes::new(env);
-        data.append(&depositor.clone().to_xdr(env));
-        data.append(&beneficiary.clone().to_xdr(env));
-        data.append(&arbiter.clone().to_xdr(env));
-        data.append(&amount.to_xdr(env));
-        data.append(&token.clone().to_xdr(env));
-        data.append(&env.ledger().timestamp().to_xdr(env));
+        let mut data = soroban_sdk::Bytes::new(&env);
+        data.append(&depositor.clone().to_xdr(&env));
+        data.append(&beneficiary.clone().to_xdr(&env));
+        data.append(&arbiter.clone().to_xdr(&env));
+        data.append(&amount.to_xdr(&env));
+        data.append(&token.clone().to_xdr(&env));
+        data.append(&env.ledger().timestamp().to_xdr(&env));
 
         let escrow_id: BytesN<32> = env.crypto().sha256(&data).into();
 
