@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,9 +26,12 @@ import { AuditLog } from '../audit/decorators/audit-log.decorator';
 import { ReviewPromptService } from '../reviews/review-prompt.service';
 import { ChiomaContractService } from '../stellar/services/chioma-contract.service';
 import { BlockchainSyncService } from './blockchain-sync.service';
+import { EscrowIntegrationService } from './escrow-integration.service';
 
 @Injectable()
 export class AgreementsService {
+  private readonly logger = new Logger(AgreementsService.name);
+
   constructor(
     @InjectRepository(RentAgreement)
     private readonly agreementRepository: Repository<RentAgreement>,
@@ -37,6 +41,7 @@ export class AgreementsService {
     private readonly reviewPromptService: ReviewPromptService,
     private readonly chiomaContract: ChiomaContractService,
     private readonly blockchainSync: BlockchainSyncService,
+    private readonly escrowIntegration: EscrowIntegrationService,
   ) {}
 
   /**
@@ -95,6 +100,23 @@ export class AgreementsService {
       savedAgreement.blockchainAgreementId = agreementNumber;
       savedAgreement.blockchainSyncedAt = new Date();
       await this.agreementRepository.save(savedAgreement);
+
+      // Create escrow for security deposit if required
+      if (
+        createAgreementDto.securityDeposit &&
+        Number(createAgreementDto.securityDeposit) > 0
+      ) {
+        try {
+          await this.escrowIntegration.createEscrowForAgreement(
+            savedAgreement.id,
+          );
+        } catch (escrowError) {
+          this.logger.warn(
+            `Failed to create escrow for agreement ${savedAgreement.id}: ${escrowError.message}`,
+          );
+          // Don't fail the entire agreement creation if escrow fails
+        }
+      }
     } catch (error) {
       // Rollback database if blockchain fails
       await this.agreementRepository.remove(savedAgreement);
