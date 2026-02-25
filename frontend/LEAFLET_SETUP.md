@@ -7,13 +7,14 @@
 ✅ **Open Source** - Community-driven  
 ✅ **OpenStreetMap** - Free map tiles  
 ✅ **Perfect for Testing** - Works immediately  
-✅ **Lightweight** - Fast and efficient  
+✅ **Lightweight** - Fast and efficient
 
 ## Quick Start
 
 **No setup required!** The map works out of the box.
 
 1. **Start the dev server**:
+
    ```bash
    npm run dev
    ```
@@ -60,13 +61,13 @@ You can customize marker icons by modifying the `Marker` component in `PropertyM
 
 ## Comparison with Other Solutions
 
-| Feature | Leaflet (Current) | Google Maps | Mapbox |
-|---------|------------------|-------------|--------|
-| API Key Required | ❌ No | ✅ Yes | ✅ Yes |
-| Free Tier | ✅ Unlimited | ⚠️ $200/month | ⚠️ Limited |
-| Setup Complexity | ✅ Easy | ⚠️ Medium | ⚠️ Medium |
-| Open Source | ✅ Yes | ❌ No | ❌ No |
-| Perfect for Testing | ✅ Yes | ⚠️ Requires setup | ⚠️ Requires setup |
+| Feature             | Leaflet (Current) | Google Maps       | Mapbox            |
+| ------------------- | ----------------- | ----------------- | ----------------- |
+| API Key Required    | ❌ No             | ✅ Yes            | ✅ Yes            |
+| Free Tier           | ✅ Unlimited      | ⚠️ $200/month     | ⚠️ Limited        |
+| Setup Complexity    | ✅ Easy           | ⚠️ Medium         | ⚠️ Medium         |
+| Open Source         | ✅ Yes            | ❌ No             | ❌ No             |
+| Perfect for Testing | ✅ Yes            | ⚠️ Requires setup | ⚠️ Requires setup |
 
 ## Troubleshooting
 

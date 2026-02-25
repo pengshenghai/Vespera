@@ -1,23 +1,30 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { LatLngBounds } from 'leaflet';
+import { useState, useCallback, useRef } from 'react';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import PropertySummaryCard from './PropertySummaryCard';
-import { MapPin } from 'lucide-react';
 
 // Fix for default marker icons in Next.js
 import L from 'leaflet';
 
 // Fix default marker icon issue (Next.js requires full paths)
 if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconRetinaUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
   });
 }
 
@@ -136,29 +143,32 @@ export default function PropertyMapView({
   );
 
   // Get property coordinates with fallback
-  const getPropertyCoordinates = useCallback((property: Property): [number, number] => {
-    if (property.latitude && property.longitude) {
-      return [property.latitude, property.longitude];
-    }
-
-    // Fallback: approximate coordinates for Lagos locations
-    const locationMap: Record<string, [number, number]> = {
-      'Victoria Island': [6.4281, 3.4219],
-      'Lekki': [6.4654, 3.4738],
-      'Ikoyi': [6.4484, 3.4356],
-      'Yaba': [6.4993, 3.3779],
-      'Banana Island': [6.4444, 3.4333],
-      'Eko Atlantic': [6.4167, 3.4167],
-    };
-
-    for (const [area, coords] of Object.entries(locationMap)) {
-      if (property.location.includes(area)) {
-        return coords;
+  const getPropertyCoordinates = useCallback(
+    (property: Property): [number, number] => {
+      if (property.latitude && property.longitude) {
+        return [property.latitude, property.longitude];
       }
-    }
 
-    return DEFAULT_CENTER;
-  }, []);
+      // Fallback: approximate coordinates for Lagos locations
+      const locationMap: Record<string, [number, number]> = {
+        'Victoria Island': [6.4281, 3.4219],
+        Lekki: [6.4654, 3.4738],
+        Ikoyi: [6.4484, 3.4356],
+        Yaba: [6.4993, 3.3779],
+        'Banana Island': [6.4444, 3.4333],
+        'Eko Atlantic': [6.4167, 3.4167],
+      };
+
+      for (const [area, coords] of Object.entries(locationMap)) {
+        if (property.location.includes(area)) {
+          return coords;
+        }
+      }
+
+      return DEFAULT_CENTER;
+    },
+    [],
+  );
 
   return (
     <div className="relative w-full h-full">
