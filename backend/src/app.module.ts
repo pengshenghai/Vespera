@@ -17,6 +17,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PropertiesModule } from './modules/properties/properties.module';
 import { StellarModule } from './modules/stellar/stellar.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { HealthModule } from './health/health.module';
 import { PaymentModule } from './modules/payments/payment.module';
@@ -115,6 +116,7 @@ import { DeveloperModule } from './modules/developer/developer.module';
     PropertiesModule,
     StellarModule,
     DisputesModule,
+    MonitoringModule,
     HealthModule,
     PaymentModule,
     NotificationsModule,
