@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useRef, ChangeEvent } from 'react';
-import { Upload, X, FileText, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
+import {
+  Upload,
+  X,
+  FileText,
+  Image as ImageIcon,
+  CheckCircle2,
+} from 'lucide-react';
 
 interface UploaderProps {
   label: string;
@@ -65,7 +71,8 @@ export const Uploader: React.FC<UploaderProps> = ({
   };
 
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith('image/')) return <ImageIcon size={20} className="text-blue-500" />;
+    if (file.type.startsWith('image/'))
+      return <ImageIcon size={20} className="text-blue-500" />;
     return <FileText size={20} className="text-gray-500" />;
   };
 
@@ -74,16 +81,17 @@ export const Uploader: React.FC<UploaderProps> = ({
       <label className="block text-sm font-semibold text-neutral-800 dark:text-neutral-200">
         {label}
       </label>
-      
+
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-2xl p-8 transition-all cursor-pointer flex flex-col items-center justify-center space-y-3
-          ${isDragging 
-            ? 'border-brand-blue bg-brand-blue/5 scale-[0.99]' 
-            : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+          ${
+            isDragging
+              ? 'border-brand-blue bg-brand-blue/5 scale-[0.99]'
+              : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
           }`}
       >
         <input
@@ -94,21 +102,25 @@ export const Uploader: React.FC<UploaderProps> = ({
           multiple={multiple}
           className="hidden"
         />
-        
+
         <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 group-hover:text-brand-blue transition-colors">
           <Upload size={24} />
         </div>
-        
+
         <div className="text-center">
-          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{description}</p>
-          <p className="text-xs text-neutral-500 mt-1">PNG, JPG or PDF up to 10MB</p>
+          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            {description}
+          </p>
+          <p className="text-xs text-neutral-500 mt-1">
+            PNG, JPG or PDF up to 10MB
+          </p>
         </div>
       </div>
 
       {selectedFiles.length > 0 && (
         <div className="grid grid-cols-1 gap-2">
           {selectedFiles.map((file, idx) => (
-            <div 
+            <div
               key={`${file.name}-${idx}`}
               className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 shadow-sm"
             >
