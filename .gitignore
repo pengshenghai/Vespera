@@ -10,7 +10,10 @@
 !.yarn/releases
 !.yarn/versions
 /.pnpm-store/
-/pnpm-lock.yaml
+/pnpm-lock.yaml 
+/package-lock.json
+/yarn.lock
+/package.json
 
 
 
