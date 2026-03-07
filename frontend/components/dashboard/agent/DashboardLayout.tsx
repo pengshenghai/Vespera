@@ -35,7 +35,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     },
     {
       name: 'Properties',
-      href: '/agent/properties',
+      href: '/agents/properties',
       icon: Building2,
     },
     {
