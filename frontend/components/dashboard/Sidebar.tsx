@@ -17,6 +17,7 @@ export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/tenant') return pathname === '/tenant';
     return pathname.startsWith(href);
   };
 
