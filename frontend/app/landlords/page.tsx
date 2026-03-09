@@ -7,10 +7,15 @@ import RecentActivity from '@/components/dashboard/RecentActivity';
 import PropertyPortfolio from '@/components/dashboard/PropertyPortfolio';
 import dynamic from 'next/dynamic';
 
-const RevenueChart = dynamic(() => import('@/components/dashboard/RevenueChart'), {
-  ssr: false,
-  loading: () => <div className="h-80 w-full bg-neutral-50 animate-pulse rounded-2xl border border-neutral-200" />,
-});
+const RevenueChart = dynamic(
+  () => import('@/components/dashboard/RevenueChart'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-80 w-full bg-neutral-50 animate-pulse rounded-2xl border border-neutral-200" />
+    ),
+  },
+);
 
 export default function DashboardPage() {
   return (
