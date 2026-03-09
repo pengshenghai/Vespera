@@ -1,27 +1,16 @@
+'use client';
+
 import React from 'react';
-import { FileText } from 'lucide-react';
+import DashboardLayout from '@/components/dashboard/agent/DashboardLayout';
+import { ContractDashboard } from '@/components/dashboard/agent/contracts/ContractDashboard';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-export default function ContractsPage() {
+export default function AgentContractsPage() {
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Contracts</h1>
-        <p className="text-sm text-neutral-500 mt-1">
-          Review and manage your agreements
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border border-neutral-100">
-        <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-          <FileText size={28} className="text-brand-blue" />
-        </div>
-        <h2 className="text-lg font-semibold text-neutral-800">
-          No contracts yet
-        </h2>
-        <p className="text-sm text-neutral-500 mt-1 max-w-xs">
-          Your signed and pending contracts will appear here.
-        </p>
-      </div>
-    </div>
+    <ProtectedRoute>
+      <DashboardLayout>
+        <ContractDashboard />
+      </DashboardLayout>
+    </ProtectedRoute>
   );
 }
