@@ -48,6 +48,7 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
     }),
     CacheModule.registerAsync({
       isGlobal: true,
+      inject: [],
       useFactory: async () => {
         if (process.env.NODE_ENV === 'test') {
           return {
@@ -121,8 +122,8 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
           database: process.env.DB_NAME,
           namingStrategy: new SnakeNamingStrategy(),
           entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
-          migrations: [__dirname + '/migrations/*{.ts,.js}'],
-          synchronize: false,
+          migrations: isTest ? [] : [__dirname + '/migrations/*{.ts,.js}'],
+          synchronize: isTest,
           logging: process.env.NODE_ENV === 'development',
         };
       },
