@@ -81,7 +81,10 @@ export class Payment {
   @Column({ type: 'text', nullable: true })
   refundReason: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({
+    type: process.env.DB_TYPE === 'sqlite' ? 'text' : 'jsonb',
+    nullable: true,
+  })
   metadata: PaymentMetadata | null;
 
   @Column({ type: 'text', nullable: true })
