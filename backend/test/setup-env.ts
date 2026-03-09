@@ -22,6 +22,7 @@ process.env.JWT_EXPIRATION = '15m';
 process.env.JWT_REFRESH_EXPIRATION = '7d';
 
 // Database configuration
+process.env.DB_TYPE = 'postgres';
 process.env.DB_HOST = 'localhost';
 process.env.DB_PORT = '5432';
 process.env.DB_USERNAME = 'postgres';
