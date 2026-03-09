@@ -60,7 +60,7 @@ To connect a real monitoring provider (Sentry, Datadog, etc.), set a browser rep
 
 ```ts
 window.__CHIOMA_ERROR_REPORTER__ = (payload) => {
-	// Forward payload to your monitoring endpoint
+  // Forward payload to your monitoring endpoint
 };
 ```
 

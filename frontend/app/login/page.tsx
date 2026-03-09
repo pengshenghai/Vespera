@@ -90,9 +90,7 @@ export default function LoginPage() {
 
         {/* Glass Form Card */}
         <div className="glass rounded-4xl border border-white/20 shadow-2xl p-6 sm:p-8">
-          {serverError && (
-            <FormErrorAlert message={serverError} />
-          )}
+          {serverError && <FormErrorAlert message={serverError} />}
 
           <form
             onSubmit={handleSubmit(onSubmit)}

@@ -80,7 +80,9 @@ export default function ErrorFallback({
         <p className="mb-4 text-sm text-neutral-600">{description}</p>
 
         {process.env.NODE_ENV === 'development' && error?.message && (
-          <pre className={`mb-5 overflow-auto rounded-lg px-4 py-3 text-left text-xs ${detailBg}`}>
+          <pre
+            className={`mb-5 overflow-auto rounded-lg px-4 py-3 text-left text-xs ${detailBg}`}
+          >
             {error.message}
           </pre>
         )}

@@ -1,7 +1,10 @@
 import { getErrorMessage } from './messages';
 import { AppError, type ErrorContext } from './types';
 
-export function createHttpError(status: number, context?: ErrorContext): AppError {
+export function createHttpError(
+  status: number,
+  context?: ErrorContext,
+): AppError {
   if (status === 401) {
     const msg = getErrorMessage('AUTH_SESSION_EXPIRED');
     return new AppError({
