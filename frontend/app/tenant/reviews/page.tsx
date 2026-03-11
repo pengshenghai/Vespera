@@ -65,8 +65,8 @@ export default function TenantReviewsPage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-amber-200 bg-linear-to-br from-amber-50 via-white to-orange-50 p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">
+      <section className="rounded-[2rem] border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50 p-6 shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
           Reviews & Ratings
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
@@ -79,10 +79,10 @@ export default function TenantReviewsPage() {
         </p>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[1.5rem] border border-white bg-white/90 p-5">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100">
-                <MessageSquareHeart className="h-5 w-5 text-amber-700" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50">
+                <MessageSquareHeart className="h-5 w-5 text-blue-700" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-900">
@@ -114,7 +114,7 @@ export default function TenantReviewsPage() {
                           {target.propertyName} • {target.context}
                         </p>
                       </div>
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                         {target.role}
                       </span>
                     </div>
@@ -127,30 +127,24 @@ export default function TenantReviewsPage() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-white bg-slate-950 p-5 text-white">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
-                <Star className="h-5 w-5 text-amber-300" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100">
+                <Star className="h-5 w-5 text-slate-700" />
               </div>
               <div>
-                <p className="text-sm font-semibold">Feedback coverage</p>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm font-semibold text-slate-900">
+                  Feedback coverage
+                </p>
+                <p className="text-sm text-slate-500">
                   Track submitted reviews across lease and maintenance contexts.
                 </p>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <InfoCard
-                label="Submitted"
-                value={`${reviews.length}`}
-                theme="dark"
-              />
-              <InfoCard
-                label="Pending"
-                value={`${targets.length}`}
-                theme="dark"
-              />
+              <InfoCard label="Submitted" value={`${reviews.length}`} />
+              <InfoCard label="Pending" value={`${targets.length}`} />
             </div>
           </div>
         </div>
@@ -170,30 +164,18 @@ export default function TenantReviewsPage() {
 function InfoCard({
   label,
   value,
-  theme,
 }: {
   label: string;
   value: string;
-  theme: 'dark' | 'light';
 }) {
   return (
-    <div
-      className={
-        theme === 'dark'
-          ? 'rounded-2xl border border-white/10 bg-white/5 p-4'
-          : 'rounded-2xl border border-slate-200 bg-white p-4'
-      }
-    >
-      <p
-        className={
-          theme === 'dark'
-            ? 'text-xs font-semibold uppercase tracking-[0.18em] text-slate-300'
-            : 'text-xs font-semibold uppercase tracking-[0.18em] text-slate-500'
-        }
-      >
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+      <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+        {value}
+      </p>
     </div>
   );
 }

@@ -48,7 +48,7 @@ export default function LandlordDisputesPage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-slate-200 bg-linear-to-br from-white via-white to-blue-50 p-6 shadow-sm">
+      <section className="rounded-[2rem] border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50 p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
           Resolution Desk
         </p>
@@ -177,7 +177,7 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5">
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-50">
         {icon}
       </div>

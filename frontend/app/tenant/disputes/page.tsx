@@ -115,16 +115,16 @@ export default function TenantDisputesPage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-slate-200 bg-linear-to-br from-slate-950 via-slate-900 to-blue-950 p-6 text-white shadow-sm">
+      <section className="rounded-[2rem] border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50 p-6 text-slate-900 shadow-sm">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
               Dispute Resolution
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight">
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
               Raise issues before they become lease risk
             </h1>
-            <p className="mt-3 max-w-2xl text-sm text-slate-300">
+            <p className="mt-3 max-w-2xl text-sm text-slate-600">
               The backend dispute module already exists. This dashboard now lets
               tenants document incidents, track reviews, and keep a visible
               paper trail from first complaint to resolution.
@@ -159,53 +159,58 @@ export default function TenantDisputesPage() {
           ) : (
             <div className="divide-y divide-slate-100">
               {disputes.map((dispute) => (
-                <article key={dispute.id} className="px-6 py-5">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
-                          {dispute.disputeId}
+                <article key={dispute.id} className="px-6 py-6">
+                  <div className="space-y-5">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        {dispute.disputeId}
+                      </p>
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[dispute.status]}`}
+                      >
+                        {dispute.status.replace('_', ' ')}
+                      </span>
+                    </div>
+
+                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            {dispute.propertyName}
+                          </h3>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {dispute.agreementReference} • Against{' '}
+                            {dispute.counterpartyName}
+                          </p>
+                        </div>
+
+                        <p className="max-w-2xl text-sm leading-7 text-slate-600">
+                          {dispute.description}
                         </p>
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[dispute.status]}`}
-                        >
-                          {dispute.status.replace('_', ' ')}
-                        </span>
                       </div>
-                      <h3 className="mt-3 text-lg font-semibold text-slate-900">
-                        {dispute.propertyName}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {dispute.agreementReference} • Against{' '}
-                        {dispute.counterpartyName}
-                      </p>
-                      <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                        {dispute.description}
-                      </p>
+
+                      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                        <MiniStat
+                          icon={<Scale className="h-4 w-4 text-blue-600" />}
+                          label="Type"
+                          value={dispute.disputeType.replace('_', ' ')}
+                        />
+                        <MiniStat
+                          icon={<FilePlus2 className="h-4 w-4 text-amber-600" />}
+                          label="Evidence"
+                          value={`${dispute.evidenceCount}`}
+                        />
+                        <MiniStat
+                          icon={
+                            <MessageSquareText className="h-4 w-4 text-emerald-600" />
+                          }
+                          label="Comments"
+                          value={`${dispute.commentCount}`}
+                        />
+                      </div>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3 lg:min-w-80">
-                      <MiniStat
-                        icon={<Scale className="h-4 w-4 text-blue-600" />}
-                        label="Type"
-                        value={dispute.disputeType.replace('_', ' ')}
-                      />
-                      <MiniStat
-                        icon={<FilePlus2 className="h-4 w-4 text-amber-600" />}
-                        label="Evidence"
-                        value={`${dispute.evidenceCount}`}
-                      />
-                      <MiniStat
-                        icon={
-                          <MessageSquareText className="h-4 w-4 text-emerald-600" />
-                        }
-                        label="Comments"
-                        value={`${dispute.commentCount}`}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500">
                     <span>
                       Opened{' '}
                       {format(new Date(dispute.createdAt), 'MMM d, yyyy')}
@@ -228,6 +233,7 @@ export default function TenantDisputesPage() {
                       {dispute.resolution}
                     </div>
                   ) : null}
+                  </div>
                 </article>
               ))}
             </div>
@@ -346,11 +352,11 @@ export default function TenantDisputesPage() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-bold tracking-tight text-white">
+      <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
         {value}
       </p>
     </div>
@@ -372,7 +378,9 @@ function MiniStat({
         {icon}
         {label}
       </div>
-      <p className="mt-2 text-sm font-semibold text-slate-900">{value}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">
+        {value}
+      </p>
     </div>
   );
 }
