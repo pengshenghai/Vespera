@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 
 export default function NetworkStatusBanner() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator === 'undefined' ? true : navigator.onLine,
-  );
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
+    // Sync actual status after hydration to avoid SSR false positives
+    setIsOnline(navigator.onLine);
+
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
 
