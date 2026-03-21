@@ -30,7 +30,7 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
-  const { setTokens, isAuthenticated, user } = useAuth();
+  const { setTokens, isAuthenticated, user, logout } = useAuth();
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -47,16 +47,12 @@ export default function SignupPage() {
 
   const selectedRole = useWatch({ control, name: 'role' });
 
+  // Redirect authenticated users to their dashboard
+  // Only redirect after successful signup, not on initial page load
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
-
-    if (user.role === 'landlord') {
-      router.push('/landlords');
-    } else if (user.role === 'agent') {
-      router.push('/agents');
-    } else {
-      router.push('/');
-    }
+    // Don't redirect on initial mount - let users access signup page
+    // This prevents redirect loops when users intentionally visit /signup
+    return;
   }, [isAuthenticated, user, router]);
 
   const onSubmit = async (data: SignupFormData) => {
@@ -75,6 +71,15 @@ export default function SignupPage() {
 
       const result = await response.json();
       setTokens(result.accessToken, result.refreshToken, result.user);
+      
+      // Redirect after successful signup
+      if (result.user.role === 'landlord') {
+        router.push('/landlords');
+      } else if (result.user.role === 'agent') {
+        router.push('/agents');
+      } else {
+        router.push('/');
+      }
     } catch (error) {
       const appError = classifyUnknownError(error, {
         source: 'app/signup/page.tsx',
@@ -115,6 +120,37 @@ export default function SignupPage() {
 
         {/* Premium Form Card */}
         <div className="backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 shadow-2xl p-8 space-y-6">
+          {/* Already logged in notice */}
+          {isAuthenticated && user && (
+            <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+              <p className="text-sm text-blue-200 mb-3">
+                You&apos;re already logged in as <span className="font-semibold">{user.email}</span>
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    if (user.role === 'landlord') {
+                      router.push('/landlords');
+                    } else if (user.role === 'agent') {
+                      router.push('/agents');
+                    } else {
+                      router.push('/');
+                    }
+                  }}
+                  className="flex-1 py-2 px-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 text-sm font-medium rounded transition-colors"
+                >
+                  Go to Dashboard
+                </button>
+                <button
+                  onClick={() => logout()}
+                  className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-sm font-medium rounded transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+
           {serverError && <FormErrorAlert message={serverError} />}
 
           <form
@@ -124,9 +160,6 @@ export default function SignupPage() {
           >
             {/* Role Toggle */}
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">
-                I am a
-              </label>
               <div className="grid grid-cols-2 gap-2 p-1 rounded-lg bg-white/5 border border-white/20">
                 {(['TENANT', 'LANDLORD'] as const).map((role) => (
                   <button
