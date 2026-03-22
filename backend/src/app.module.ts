@@ -40,6 +40,7 @@ import { DeveloperModule } from './modules/developer/developer.module';
 import { SearchModule } from './modules/search/search.module';
 import { JobQueueService } from './common/services/job-queue.service';
 import { RateLimitingModule } from './modules/rate-limiting/rate-limiting.module';
+import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/rate-limit-headers.middleware';
 import { upstashStore } from './common/cache/upstash-cache.store';
 
 @Module({
@@ -100,11 +101,11 @@ import { upstashStore } from './common/cache/upstash-cache.store';
 
           console.log('[Redis] Using ioredis with TLS');
 
+          const client = new Redis(redisConfig);
+
           return {
-            store: await redisStore({
-              client: new Redis(redisConfig),
-              ttl: 600,
-            }),
+            store: await redisStore(client),
+            ttl: 600,
           };
         },
       }),
