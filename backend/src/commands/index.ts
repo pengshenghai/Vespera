@@ -1,16 +1,21 @@
 import { parseCliArgs, seedAdminUser } from './admin.seed';
 import { parseCliArgs as parseAgentArgs, seedAgentUser } from './agent.seed';
 import { parseCliArgs as parseTenantArgs, seedTenantUser } from './tenant.seed';
+import {
+  parseCliArgs as parseLandlordArgs,
+  seedLandlordUser,
+} from './landlord.seed';
 
-type SupportedCommand = 'admin' | 'agent' | 'tenant';
+type SupportedCommand = 'admin' | 'agent' | 'tenant' | 'landlord';
 
 function printUsage(): void {
   console.log('Usage: pnpm run seed:[command] -- [options]');
   console.log('');
   console.log('Commands:');
-  console.log('  admin    Create admin user');
-  console.log('  agent    Create agent user');
-  console.log('  tenant   Create tenant user');
+  console.log('  admin      Create admin user');
+  console.log('  agent      Create agent user');
+  console.log('  tenant     Create tenant user');
+  console.log('  landlord   Create landlord user');
   console.log('');
   console.log('Options:');
   console.log('  --email <email>            User email');
@@ -45,6 +50,12 @@ async function run(): Promise<void> {
   if (normalizedCommand === 'tenant') {
     const options = parseTenantArgs(args);
     await seedTenantUser(options);
+    return;
+  }
+
+  if (normalizedCommand === 'landlord') {
+    const options = parseLandlordArgs(args);
+    await seedLandlordUser(options);
     return;
   }
 
