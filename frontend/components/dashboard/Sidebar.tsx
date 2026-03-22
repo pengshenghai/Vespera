@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { LogOut } from 'lucide-react';
 import { navItems } from '@/types/sidebar-items';
+import Logo from '@/components/Logo';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,14 +39,7 @@ export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
       >
         {/* Logo */}
         <div className="h-20 flex items-center px-6 border-b border-white/10">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
-            </div>
-            <span className="text-2xl font-bold text-white tracking-tight">
-              Chioma
-            </span>
-          </Link>
+          <Logo size="sm" />
         </div>
 
         {/* Navigation */}
