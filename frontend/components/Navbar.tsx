@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Logo from '@/components/Logo';
 import { Menu, X } from 'lucide-react';
 import { NAV_LINKS } from '@/constants/navigation';
 
@@ -10,12 +11,11 @@ interface NavbarProps {
   theme?: 'light' | 'dark';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Navbar = ({ theme = 'dark' }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-
-  const isLight = theme === 'light';
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -44,20 +44,13 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
     <nav
       className={`top-0 left-0 right-0 z-50 transition-all duration-300 sticky ${
         isScrolled
-          ? 'backdrop-blur-xl bg-slate-950/95 border-b border-white/20 py-3 shadow-xl shadow-black/20'
-          : 'bg-transparent py-6'
+          ? 'backdrop-blur-xl bg-slate-950/95 border-b border-white/20 py-2 shadow-xl shadow-black/20'
+          : 'bg-transparent py-3'
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">C</span>
-          </div>
-          <span className="text-xl font-bold text-white tracking-tight">
-            Chioma
-          </span>
-        </Link>
+        <Logo size="md" textClassName="text-xl font-bold text-white tracking-tight" />
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">

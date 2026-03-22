@@ -25,7 +25,6 @@ type ViewMode = 'split' | 'list' | 'map';
 export default function PropertyListing() {
   const [searchAsIMove, setSearchAsIMove] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('split');
 
   useEffect(() => {
@@ -147,14 +146,7 @@ export default function PropertyListing() {
     console.log('Properties in bounds:', filtered.length);
   };
 
-  const filteredProperties = properties.filter((property) => {
-    if (!searchQuery) return true;
-    const lowerQuery = searchQuery.toLowerCase();
-    return (
-      property.title.toLowerCase().includes(lowerQuery) ||
-      property.location.toLowerCase().includes(lowerQuery)
-    );
-  });
+  const filteredProperties = properties;
 
   return (
     <>

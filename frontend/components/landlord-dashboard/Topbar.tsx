@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { FaSearch, FaPlus, FaBars, FaTimes, FaHome } from 'react-icons/fa';
+import { FaSearch, FaBars, FaTimes, FaHome } from 'react-icons/fa';
 import { NotificationBell } from '@/components/notifications';
 import Link from 'next/link';
 import { navItems } from './Sidebar';
 import Image from 'next/image';
 import { FaArrowRightFromBracket } from 'react-icons/fa6';
 import { usePathname } from 'next/navigation';
+import Logo from '@/components/Logo';
 
 export default function Topbar({ pageTitle }: { pageTitle: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,14 +67,6 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
             size={20}
             className="text-blue-200"
           />
-
-          <Link
-            href="/landlords/properties/add"
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm md:text-base font-bold py-2 px-3 md:px-5 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
-          >
-            <FaPlus />
-            <span className="hidden md:inline">Add Property</span>
-          </Link>
         </div>
       </header>
 
@@ -136,14 +129,7 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
         >
           <div>
             <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">C</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                  Chioma
-                </span>
-              </Link>
+              <Logo size="sm" textClassName="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent" />
               <button onClick={() => setMobileOpen(false)} className="text-blue-200 hover:text-white transition-colors">
                 <FaTimes size={20} />
               </button>

@@ -5,10 +5,8 @@ import Image from 'next/image';
 import { Calendar, CircleAlert, UserRound, Wrench } from 'lucide-react';
 import {
   PRIORITY_LABELS,
-  PRIORITY_STYLES,
   STATUS_LABELS,
   STATUS_OPTIONS,
-  STATUS_STYLES,
 } from './config';
 import { MaintenanceRequest, RequestStatus } from './types';
 

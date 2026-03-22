@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Filter, List, LayoutGrid, BellRing } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { EmptyState } from '@/components/ui/EmptyState';
 import {
   DEFAULT_PROPERTIES,
   ISSUE_CATEGORIES,
