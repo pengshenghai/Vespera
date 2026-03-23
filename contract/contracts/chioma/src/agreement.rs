@@ -377,7 +377,10 @@ pub fn create_agreement_with_token(
     )?;
 
     // Store the token mapping explicitly if needed, but it's already in RentAgreement
-    env.storage().persistent().set(&DataKey::AgreementToken(agreement_id.clone()), &payment_token);
+    env.storage().persistent().set(
+        &DataKey::AgreementToken(agreement_id.clone()),
+        &payment_token,
+    );
 
     Ok(agreement_id)
 }
@@ -411,7 +414,12 @@ pub fn make_payment_with_token(
 
     // Convert amount to the agreement's base token if they differ
     let amount_in_base = if token != agreement.payment_token {
-        crate::multi_token::convert_amount(env.clone(), token.clone(), agreement.payment_token.clone(), amount)?
+        crate::multi_token::convert_amount(
+            env.clone(),
+            token.clone(),
+            agreement.payment_token.clone(),
+            amount,
+        )?
     } else {
         amount
     };
@@ -427,7 +435,7 @@ pub fn make_payment_with_token(
     // Update agreement state
     agreement.total_rent_paid += amount_in_base;
     agreement.payment_count += 1;
-    
+
     // Simple split for now: 100% to landlord
     let split = PaymentSplit {
         landlord_amount: amount_in_base,
@@ -436,9 +444,13 @@ pub fn make_payment_with_token(
         payment_date: env.ledger().timestamp(),
         payer: agreement.tenant.clone(),
     };
-    agreement.payment_history.set(agreement.payment_count, split);
+    agreement
+        .payment_history
+        .set(agreement.payment_count, split);
 
-    env.storage().persistent().set(&DataKey::Agreement(agreement_id.clone()), &agreement);
+    env.storage()
+        .persistent()
+        .set(&DataKey::Agreement(agreement_id.clone()), &agreement);
 
     events::payment_made_with_token(env, agreement_id, token, amount);
 
@@ -466,7 +478,7 @@ pub fn release_escrow_with_token(
     let contract_addr = env.current_contract_address();
     let client = soroban_sdk::token::Client::new(env, &token);
     let balance = client.balance(&contract_addr);
-    
+
     if balance > 0 {
         client.transfer(&contract_addr, &agreement.landlord, &balance);
     }
