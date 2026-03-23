@@ -6,6 +6,7 @@ pub enum DataKey {
     Agreement(String),
     AgreementCount,
     State,
+    PauseState,
     Initialized,
     SupportedToken(soroban_sdk::Address),
     SupportedTokens,
