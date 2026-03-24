@@ -211,7 +211,7 @@ pub fn get_error_logs(env: &Env, limit: u32) -> Result<Vec<ErrorContext>, Rental
         .unwrap_or(0);
     let mut logs = Vec::new(env);
 
-    let start = if count > limit { count - limit } else { 0 };
+    let start = count.saturating_sub(limit);
 
     for i in start..count {
         if let Some(log) = env
