@@ -22,4 +22,6 @@ pub enum RentalError {
     RateNotFound = 20,
     ConversionError = 21,
     InsufficientPayment = 22,
+    AlreadyPaused = 23,
+    NotPaused = 24,
 }
