@@ -11,7 +11,7 @@ interface WalletCardProps {
 }
 
 const WalletCard = ({
-  balance = 12450.00,
+  balance = 12450.0,
   currency = 'USDC',
   onCurrencyToggle,
   onWithdraw,
