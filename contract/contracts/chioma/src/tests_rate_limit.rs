@@ -1,8 +1,8 @@
-use crate::types::{Config, RateLimitConfig};
+use crate::types::{AgreementInput, AgreementTerms, Config, RateLimitConfig};
 use crate::{Contract, ContractClient};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
-    Address, Env, String,
+    Address, Env, String, Vec,
 };
 
 fn create_contract() -> (Env, ContractClient<'static>, Address, Address) {
@@ -24,6 +24,31 @@ fn create_contract() -> (Env, ContractClient<'static>, Address, Address) {
     client.initialize(&admin, &config);
 
     (env, client, admin, fee_collector)
+}
+
+fn make_input(
+    env: &Env,
+    agreement_id: &str,
+    landlord: &Address,
+    tenant: &Address,
+    payment_token: &Address,
+) -> AgreementInput {
+    AgreementInput {
+        agreement_id: String::from_str(env, agreement_id),
+        landlord: landlord.clone(),
+        tenant: tenant.clone(),
+        agent: None,
+        terms: AgreementTerms {
+            monthly_rent: 100_000,
+            security_deposit: 10_000,
+            start_date: 1000,
+            end_date: 2000,
+            agent_commission_rate: 5,
+        },
+        payment_token: payment_token.clone(),
+        metadata_uri: String::from_str(env, ""),
+        attributes: Vec::new(env),
+    }
 }
 
 #[test]
@@ -64,50 +89,35 @@ fn test_rate_limit_per_block() {
     let payment_token = Address::generate(&env);
 
     // First call should succeed
-    let result1 = client.try_create_agreement(
-        &String::from_str(&env, "agreement1"),
+    let result1 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result1.is_ok());
 
     // Second call should succeed
     let tenant2 = Address::generate(&env);
-    let result2 = client.try_create_agreement(
-        &String::from_str(&env, "agreement2"),
+    let result2 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement2",
         &landlord,
         &tenant2,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result2.is_ok());
 
     // Third call should fail due to per-block limit
     let tenant3 = Address::generate(&env);
-    let result3 = client.try_create_agreement(
-        &String::from_str(&env, "agreement3"),
+    let result3 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement3",
         &landlord,
         &tenant3,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result3.is_err());
 }
 
@@ -130,48 +140,33 @@ fn test_rate_limit_per_user_per_day() {
     let payment_token = Address::generate(&env);
 
     // First call should succeed
-    let result1 = client.try_create_agreement(
-        &String::from_str(&env, "agreement1"),
+    let result1 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result1.is_ok());
 
     // Second call should succeed
-    let result2 = client.try_create_agreement(
-        &String::from_str(&env, "agreement2"),
+    let result2 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement2",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result2.is_ok());
 
     // Third call should fail due to daily limit for same user
-    let result3 = client.try_create_agreement(
-        &String::from_str(&env, "agreement3"),
+    let result3 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement3",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result3.is_err());
 }
 
@@ -195,18 +190,13 @@ fn test_rate_limit_cooldown() {
     let payment_token = Address::generate(&env);
 
     // First call should succeed
-    let result1 = client.try_create_agreement(
-        &String::from_str(&env, "agreement1"),
+    let result1 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result1.is_ok());
 
     // Advance by 5 blocks (not enough)
@@ -215,18 +205,13 @@ fn test_rate_limit_cooldown() {
     });
 
     // Second call should fail due to cooldown
-    let result2 = client.try_create_agreement(
-        &String::from_str(&env, "agreement2"),
+    let result2 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement2",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result2.is_err());
 
     // Advance by 6 more blocks (total 11 blocks)
@@ -235,18 +220,13 @@ fn test_rate_limit_cooldown() {
     });
 
     // Third call should succeed after cooldown
-    let result3 = client.try_create_agreement(
-        &String::from_str(&env, "agreement3"),
+    let result3 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement3",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result3.is_ok());
 }
 
@@ -269,33 +249,23 @@ fn test_rate_limit_daily_reset() {
     let payment_token = Address::generate(&env);
 
     // First call should succeed
-    let result1 = client.try_create_agreement(
-        &String::from_str(&env, "agreement1"),
+    let result1 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result1.is_ok());
 
     // Second call should fail
-    let result2 = client.try_create_agreement(
-        &String::from_str(&env, "agreement2"),
+    let result2 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement2",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result2.is_err());
 
     // Advance by 1 day worth of blocks (17280 blocks)
@@ -304,18 +274,13 @@ fn test_rate_limit_daily_reset() {
     });
 
     // Third call should succeed after daily reset
-    let result3 = client.try_create_agreement(
-        &String::from_str(&env, "agreement3"),
+    let result3 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement3",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result3.is_ok());
 }
 
@@ -337,18 +302,13 @@ fn test_get_user_call_count() {
     let payment_token = Address::generate(&env);
 
     // Make a call
-    client.create_agreement(
-        &String::from_str(&env, "agreement1"),
+    client.create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
 
     // Check call count
     let call_count =
@@ -379,49 +339,34 @@ fn test_reset_user_rate_limit() {
     let payment_token = Address::generate(&env);
 
     // First call should succeed
-    client.create_agreement(
-        &String::from_str(&env, "agreement1"),
+    client.create_agreement(&make_input(
+        &env,
+        "agreement1",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
 
     // Second call should fail
-    let result = client.try_create_agreement(
-        &String::from_str(&env, "agreement2"),
+    let result = client.try_create_agreement(&make_input(
+        &env,
+        "agreement2",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result.is_err());
 
     // Admin resets rate limit for user
     client.reset_user_rate_limit(&tenant, &String::from_str(&env, "create_agreement"));
 
     // Third call should now succeed
-    let result2 = client.try_create_agreement(
-        &String::from_str(&env, "agreement3"),
+    let result2 = client.try_create_agreement(&make_input(
+        &env,
+        "agreement3",
         &landlord,
         &tenant,
-        &None,
-        &100_000,
-        &10_000,
-        &1000,
-        &2000,
-        &5,
         &payment_token,
-    );
+    ));
     assert!(result2.is_ok());
 }

@@ -49,10 +49,11 @@ pub use multi_token::{
 };
 pub use storage::DataKey;
 pub use types::{
-    AgreementStatus, AgreementWithToken, CompoundingFrequency, Config, ContractState,
-    DepositInterest, DepositInterestConfig, ErrorContext, InterestAccrual, InterestRecipient,
-    PauseState, PaymentSplit, RateLimitConfig, RateLimitReason, RentAgreement, RoyaltyConfig,
-    RoyaltyPayment, SupportedToken, TokenExchangeRate, UserCallCount,
+    AgreementInput, AgreementStatus, AgreementTerms, AgreementWithToken, Attribute,
+    CompoundingFrequency, Config, ContractState, DepositInterest, DepositInterestConfig,
+    ErrorContext, InterestAccrual, InterestRecipient, PauseState, PaymentSplit, RateLimitConfig,
+    RateLimitReason, RentAgreement, RoyaltyConfig, RoyaltyPayment, SupportedToken,
+    TokenExchangeRate, UserCallCount,
 };
 
 /// Chioma rental agreement contract.

@@ -50,21 +50,8 @@ pub fn create_agreement(env: &Env, input: crate::types::AgreementInput) -> Resul
     input.tenant.require_auth();
 
     // Rate limiting check
-    rate_limit::check_rate_limit(env, &tenant, "create_agreement")?;
+    rate_limit::check_rate_limit(env, &input.tenant, "create_agreement")?;
 
-    create_agreement_internal(
-        env,
-        agreement_id,
-        landlord,
-        tenant,
-        agent,
-        monthly_rent,
-        security_deposit,
-        start_date,
-        end_date,
-        agent_commission_rate,
-        payment_token,
-    )
     create_agreement_internal(env, input)
 }
 

@@ -208,6 +208,8 @@ pub struct UserCallCount {
     pub last_call_block: u64,
     pub daily_count: u32,
     pub daily_reset_block: u64,
+}
+
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AgreementTerms {
@@ -224,6 +226,10 @@ pub enum RateLimitReason {
     BlockLimitExceeded,
     DailyLimitExceeded,
     CooldownNotMet,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AgreementInput {
     pub agreement_id: String,
     pub landlord: Address,
