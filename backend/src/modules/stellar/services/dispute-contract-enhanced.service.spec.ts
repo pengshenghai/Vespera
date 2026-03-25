@@ -10,7 +10,7 @@ import { DisputeVote } from '../entities/dispute-vote.entity';
 import {
   DisputeEvent,
   DisputeEventType,
-} from '../entities/dispute-event.entity';
+} from '../../disputes/entities/dispute-event.entity';
 import { Dispute } from '../../disputes/entities/dispute.entity';
 import { DisputeOutcome } from '../dto/dispute-enhanced.dto';
 

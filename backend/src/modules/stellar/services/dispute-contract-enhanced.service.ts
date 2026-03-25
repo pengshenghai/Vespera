@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as StellarSdk from '@stellar/stellar-sdk';
-import { Arbiter } from '../entities/arbiter.entity';
-import { DisputeVote } from '../entities/dispute-vote.entity';
+import { Arbiter } from '../../disputes/entities/arbiter.entity';
+import { DisputeVote } from '../../disputes/entities/dispute-vote.entity';
 import {
   DisputeEvent,
   DisputeEventType,
-} from '../entities/dispute-event.entity';
+} from '../../disputes/entities/dispute-event.entity';
 import { Dispute, DisputeStatus } from '../../disputes/entities/dispute.entity';
 import {
   DisputeOutcome,
