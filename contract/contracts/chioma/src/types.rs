@@ -181,3 +181,31 @@ pub struct RoyaltyPayment {
     pub royalty_amount: i128,
     pub timestamp: u64,
 }
+
+// ─── Rate Limiting Types ──────────────────────────────────────────────────────
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RateLimitConfig {
+    pub max_calls_per_block: u32,
+    pub max_calls_per_user_per_day: u32,
+    pub cooldown_blocks: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct UserCallCount {
+    pub user: Address,
+    pub call_count: u32,
+    pub last_call_block: u64,
+    pub daily_count: u32,
+    pub daily_reset_block: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RateLimitReason {
+    BlockLimitExceeded,
+    DailyLimitExceeded,
+    CooldownNotMet,
+}

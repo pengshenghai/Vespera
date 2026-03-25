@@ -18,4 +18,7 @@ pub enum DataKey {
     ErrorLogCount,
     RoyaltyConfig(String),
     RoyaltyPayments(String),
+    RateLimitConfig,
+    UserCallCount(soroban_sdk::Address, String), // (user, function_name)
+    BlockCallCount(u64, String),                 // (block_number, function_name)
 }

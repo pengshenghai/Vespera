@@ -3,6 +3,7 @@ use soroban_sdk::{Address, Env, Map, String};
 
 use crate::errors::RentalError;
 use crate::events;
+use crate::rate_limit;
 use crate::storage::DataKey;
 use crate::types::{AgreementStatus, PaymentSplit, RentAgreement};
 
@@ -59,6 +60,9 @@ pub fn create_agreement(
 ) -> Result<(), RentalError> {
     // Tenant MUST authorize creation
     tenant.require_auth();
+
+    // Rate limiting check
+    rate_limit::check_rate_limit(env, &tenant, "create_agreement")?;
 
     create_agreement_internal(
         env,
@@ -170,6 +174,9 @@ fn create_agreement_internal(
 pub fn sign_agreement(env: &Env, tenant: Address, agreement_id: String) -> Result<(), RentalError> {
     // Tenant MUST authorize signing
     tenant.require_auth();
+
+    // Rate limiting check
+    rate_limit::check_rate_limit(env, &tenant, "sign_agreement")?;
 
     // Retrieve the agreement
     let mut agreement: RentAgreement = env
