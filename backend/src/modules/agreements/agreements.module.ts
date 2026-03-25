@@ -15,6 +15,7 @@ import { RentAgreement } from '../rent/entities/rent-contract.entity';
 import { Payment } from '../rent/entities/payment.entity';
 import { StellarEscrow } from '../stellar/entities/stellar-escrow.entity';
 import { RentObligationNft } from './entities/rent-obligation-nft.entity';
+import { NFTTransfer } from './entities/nft-transfer.entity';
 
 import { AuditModule } from '../audit/audit.module';
 import { ReviewsModule } from '../reviews/reviews.module';
@@ -27,6 +28,7 @@ import { StellarModule } from '../stellar/stellar.module';
       Payment,
       StellarEscrow,
       RentObligationNft,
+      NFTTransfer,
     ]),
     AuditModule,
     forwardRef(() => ReviewsModule),
@@ -48,4 +50,4 @@ import { StellarModule } from '../stellar/stellar.module';
     EscrowIntegrationService,
   ],
 })
-export class AgreementsModule {}
+export class AgreementsModule { }
