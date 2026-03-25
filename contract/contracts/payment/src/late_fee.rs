@@ -41,10 +41,7 @@ pub fn compute_fee(config: &LateFeeConfig, base_amount: i128, days_late: u32) ->
         compounded.saturating_sub(base_amount)
     } else {
         // Simple: fee = base * pct / 100 * days_over
-        base_amount
-            .saturating_mul(pct)
-            .saturating_mul(days_over)
-            / 100
+        base_amount.saturating_mul(pct).saturating_mul(days_over) / 100
     };
 
     // Cap at max_late_fee (0 means no cap)

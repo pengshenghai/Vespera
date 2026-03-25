@@ -23,12 +23,27 @@ pub struct LateFeeWaived {
     pub reason: String,
 }
 
-pub(crate) fn late_fee_config_set(env: &Env, agreement_id: String, percentage: u32, grace_period: u32) {
-    LateFeeConfigSet { agreement_id, percentage, grace_period }.publish(env);
+pub(crate) fn late_fee_config_set(
+    env: &Env,
+    agreement_id: String,
+    percentage: u32,
+    grace_period: u32,
+) {
+    LateFeeConfigSet {
+        agreement_id,
+        percentage,
+        grace_period,
+    }
+    .publish(env);
 }
 
 pub(crate) fn late_fee_applied(env: &Env, payment_id: String, amount: i128, days_late: u32) {
-    LateFeeApplied { payment_id, amount, days_late }.publish(env);
+    LateFeeApplied {
+        payment_id,
+        amount,
+        days_late,
+    }
+    .publish(env);
 }
 
 pub(crate) fn late_fee_waived(env: &Env, payment_id: String, reason: String) {

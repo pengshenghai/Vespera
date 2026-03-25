@@ -657,7 +657,12 @@ impl PaymentContract {
             .persistent()
             .set(&StorageKey::LateFeeConfig(agreement_id.clone()), &config);
 
-        crate::events::late_fee_config_set(&env, agreement_id, late_fee_percentage, grace_period_days);
+        crate::events::late_fee_config_set(
+            &env,
+            agreement_id,
+            late_fee_percentage,
+            grace_period_days,
+        );
 
         Ok(())
     }

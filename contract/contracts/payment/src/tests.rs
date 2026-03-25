@@ -547,7 +547,14 @@ fn test_recurring_payments_retry_logic() {
 use crate::late_fee::compute_fee;
 use crate::types::{LateFeeConfig, LateFeeRecord};
 
-fn make_late_fee_config(env: &Env, agreement_id: &str, pct: u32, grace: u32, max: i128, compound: bool) -> LateFeeConfig {
+fn make_late_fee_config(
+    env: &Env,
+    agreement_id: &str,
+    pct: u32,
+    grace: u32,
+    max: i128,
+    compound: bool,
+) -> LateFeeConfig {
     LateFeeConfig {
         agreement_id: String::from_str(env, agreement_id),
         late_fee_percentage: pct,
@@ -557,7 +564,11 @@ fn make_late_fee_config(env: &Env, agreement_id: &str, pct: u32, grace: u32, max
     }
 }
 
-fn seed_late_fee_config(env: &Env, client: &crate::PaymentContractClient<'_>, config: &LateFeeConfig) {
+fn seed_late_fee_config(
+    env: &Env,
+    client: &crate::PaymentContractClient<'_>,
+    config: &LateFeeConfig,
+) {
     use crate::storage::DataKey;
     env.as_contract(&client.address, || {
         env.storage()
@@ -646,15 +657,19 @@ fn test_set_and_get_late_fee_config() {
     let token = create_token(&env, &token_admin);
 
     let agreement = create_test_agreement(
-        &env, "lf_agr_1", &tenant, &landlord, None, 2000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_1",
+        &tenant,
+        &landlord,
+        None,
+        2000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     seed_agreement(&env, &client, "lf_agr_1", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_1"),
-        &5, &5, &500, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_1"), &5, &5, &500, &false);
 
     let config = client.get_late_fee_config(&String::from_str(&env, "lf_agr_1"));
     assert_eq!(config.late_fee_percentage, 5);
@@ -675,15 +690,19 @@ fn test_calculate_late_fee_via_contract() {
     let token = create_token(&env, &token_admin);
 
     let agreement = create_test_agreement(
-        &env, "lf_agr_2", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_2",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     seed_agreement(&env, &client, "lf_agr_2", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_2"),
-        &5, &5, &0, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_2"), &5, &5, &0, &false);
 
     // 10 days late, 5-day grace → 5 days over → 1000 * 5% * 5 = 250
     let fee = client.calculate_late_fee(
@@ -708,16 +727,20 @@ fn test_apply_late_fee_creates_record() {
     // next_payment_due = 1000, grace = 5 days (432000s)
     // set ledger to 1000 + 432000 + 86400 = 1 day past grace
     let mut agreement = create_test_agreement(
-        &env, "lf_agr_3", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_3",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     agreement.next_payment_due = 1000;
     seed_agreement(&env, &client, "lf_agr_3", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_3"),
-        &5, &5, &0, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_3"), &5, &5, &0, &false);
 
     // 1 day past grace period
     env.ledger().with_mut(|li| {
@@ -748,19 +771,25 @@ fn test_apply_late_fee_not_late_returns_error() {
     let token = create_token(&env, &token_admin);
 
     let mut agreement = create_test_agreement(
-        &env, "lf_agr_4", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_4",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     agreement.next_payment_due = 1_000_000;
     seed_agreement(&env, &client, "lf_agr_4", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_4"),
-        &5, &5, &0, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_4"), &5, &5, &0, &false);
 
     // Ledger is before due date → not late
-    env.ledger().with_mut(|li| { li.timestamp = 500; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 500;
+    });
 
     let result = client.try_apply_late_fee(
         &String::from_str(&env, "lf_agr_4"),
@@ -781,16 +810,20 @@ fn test_waive_late_fee() {
     let token = create_token(&env, &token_admin);
 
     let mut agreement = create_test_agreement(
-        &env, "lf_agr_5", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_5",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     agreement.next_payment_due = 1000;
     seed_agreement(&env, &client, "lf_agr_5", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_5"),
-        &5, &5, &0, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_5"), &5, &5, &0, &false);
 
     env.ledger().with_mut(|li| {
         li.timestamp = 1000 + 5 * 86_400 + 86_400 + 1;
@@ -824,16 +857,20 @@ fn test_apply_late_fee_duplicate_returns_error() {
     let token = create_token(&env, &token_admin);
 
     let mut agreement = create_test_agreement(
-        &env, "lf_agr_6", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_6",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     agreement.next_payment_due = 1000;
     seed_agreement(&env, &client, "lf_agr_6", &agreement);
 
-    client.set_late_fee_config(
-        &String::from_str(&env, "lf_agr_6"),
-        &5, &5, &0, &false,
-    );
+    client.set_late_fee_config(&String::from_str(&env, "lf_agr_6"), &5, &5, &0, &false);
 
     env.ledger().with_mut(|li| {
         li.timestamp = 1000 + 5 * 86_400 + 86_400 + 1;
@@ -864,14 +901,24 @@ fn test_compounding_late_fee_via_contract() {
     let token = create_token(&env, &token_admin);
 
     let agreement = create_test_agreement(
-        &env, "lf_agr_7", &tenant, &landlord, None, 1000, 0,
-        AgreementStatus::Active, token,
+        &env,
+        "lf_agr_7",
+        &tenant,
+        &landlord,
+        None,
+        1000,
+        0,
+        AgreementStatus::Active,
+        token,
     );
     seed_agreement(&env, &client, "lf_agr_7", &agreement);
 
     client.set_late_fee_config(
         &String::from_str(&env, "lf_agr_7"),
-        &5, &5, &0, &true, // compounding
+        &5,
+        &5,
+        &0,
+        &true, // compounding
     );
 
     // 10 days late → 5 days over grace → compounding fee = 276
