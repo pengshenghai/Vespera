@@ -6,12 +6,16 @@ const nextConfig: NextConfig = {
     root: process.cwd(), // Fix workspace root warning
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
     ],
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'date-fns', 'recharts', 'framer-motion'],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
