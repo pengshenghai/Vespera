@@ -28,7 +28,13 @@ export async function registerBackgroundSync(): Promise<boolean> {
 
     // Check if Background Sync is supported
     if ('sync' in registration) {
-      await registration.sync.register(SYNC_TAG);
+      // Type assertion for sync property
+      const syncManager = (
+        registration as ServiceWorkerRegistration & {
+          sync: { register: (tag: string) => Promise<void> };
+        }
+      ).sync;
+      await syncManager.register(SYNC_TAG);
       console.log('Background sync registered');
       return true;
     } else {

@@ -292,7 +292,7 @@ export async function getUnresolvedConflicts(): Promise<ConflictRecord[]> {
     const transaction = db.transaction([STORES.CONFLICTS], 'readonly');
     const store = transaction.objectStore(STORES.CONFLICTS);
     const index = store.index('resolved');
-    const request = index.getAll(false);
+    const request = index.getAll(IDBKeyRange.only(false));
 
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -355,4 +355,3 @@ export async function getMetadata<T>(key: string): Promise<T | null> {
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 export { STORES };
-export type { IDBDatabase };

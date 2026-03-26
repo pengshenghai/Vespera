@@ -247,7 +247,7 @@ export function useOfflineMutation<TData, TVariables>(
 
       // Online - execute immediately
       // This would be replaced with actual API call
-      return variables as TData;
+      return variables as unknown as TData;
     },
   });
 }

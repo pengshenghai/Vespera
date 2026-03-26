@@ -79,7 +79,7 @@ async function processSyncItem(
       return { success: false, conflict: false };
     }
 
-    logError(error, {
+    logError(error as Error, {
       source: 'sync-manager',
       action: 'process-sync-item',
       metadata: { item },
