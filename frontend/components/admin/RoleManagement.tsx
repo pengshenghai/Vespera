@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Check,
   Filter,
@@ -39,7 +39,9 @@ export function RoleManagement() {
   const [search, setSearch] = useState('');
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
-  const [editedPermissionIds, setEditedPermissionIds] = useState<string[]>([]);
+  const [editedPermissionIds, setEditedPermissionIds] = useState<string[] | null>(
+    null,
+  );
   const [pendingAssignments, setPendingAssignments] = useState<
     Record<string, string>
   >({});
@@ -93,13 +95,27 @@ export function RoleManagement() {
   }, [search, selectedRoleFilter, users]);
 
   const selectedRole = useMemo(() => {
-    if (!selectedRoleId) return null;
-    return roles.find((role) => role.id === selectedRoleId) ?? null;
+    if (roles.length === 0) return null;
+    if (!selectedRoleId) return roles[0];
+    return roles.find((role) => role.id === selectedRoleId) ?? roles[0];
   }, [roles, selectedRoleId]);
 
+  const hasExplicitSelectedRole = useMemo(
+    () => !!selectedRoleId && roles.some((role) => role.id === selectedRoleId),
+    [roles, selectedRoleId],
+  );
+
+  const effectiveEditedPermissionIds = useMemo(() => {
+    if (!selectedRole) return [];
+    if (!hasExplicitSelectedRole || editedPermissionIds === null) {
+      return selectedRole.permissions.map((permission) => permission.id);
+    }
+    return editedPermissionIds;
+  }, [editedPermissionIds, hasExplicitSelectedRole, selectedRole]);
+
   const selectedPermissionSet = useMemo(
-    () => new Set(editedPermissionIds),
-    [editedPermissionIds],
+    () => new Set(effectiveEditedPermissionIds),
+    [effectiveEditedPermissionIds],
   );
 
   const displayedPermissions = useMemo(() => {
@@ -125,23 +141,6 @@ export function RoleManagement() {
 
   const isLoading = isRolesLoading || isPermissionsLoading || isUsersLoading;
 
-  useEffect(() => {
-    if (roles.length === 0) {
-      setSelectedRoleId(null);
-      setEditedPermissionIds([]);
-      return;
-    }
-
-    const hasSelectedRole =
-      selectedRoleId !== null && roles.some((role) => role.id === selectedRoleId);
-
-    if (hasSelectedRole) return;
-
-    const firstRole = roles[0];
-    setSelectedRoleId(firstRole.id);
-    setEditedPermissionIds(firstRole.permissions.map((permission) => permission.id));
-  }, [roles, selectedRoleId]);
-
   const handleRefresh = async () => {
     try {
       await Promise.all([refetchRoles(), refetchPermissions(), refetchUsers()]);
@@ -159,11 +158,16 @@ export function RoleManagement() {
   };
 
   const togglePermission = (permissionId: string) => {
-    setEditedPermissionIds((prev) =>
-      prev.includes(permissionId)
-        ? prev.filter((id) => id !== permissionId)
-        : [...prev, permissionId],
-    );
+    if (!selectedRole) return;
+
+    setEditedPermissionIds((prev) => {
+      const current =
+        prev ?? selectedRole.permissions.map((permission) => permission.id);
+
+      return current.includes(permissionId)
+        ? current.filter((id) => id !== permissionId)
+        : [...current, permissionId];
+    });
   };
 
   const handleSaveRolePermissions = async () => {
@@ -172,7 +176,7 @@ export function RoleManagement() {
     try {
       await updateRolePermissionsMutation.mutateAsync({
         roleId: selectedRole.id,
-        permissionIds: editedPermissionIds,
+        permissionIds: effectiveEditedPermissionIds,
       });
 
       toast.success(`${prettify(selectedRole.name)} permissions updated`);
@@ -308,8 +312,7 @@ export function RoleManagement() {
             onClick={handleSaveRolePermissions}
             disabled={
               !selectedRole ||
-              updateRolePermissionsMutation.isPending ||
-              editedPermissionIds.length === 0
+              updateRolePermissionsMutation.isPending
             }
             className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
           >
