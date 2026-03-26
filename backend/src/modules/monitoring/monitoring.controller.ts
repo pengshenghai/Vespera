@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
 import { MetricsService } from './metrics.service';
 import { AlertService } from './alert.service';
 import { CacheService } from '../../common/cache/cache.service';
+import { WebhookSignatureGuard } from '../webhooks/guards/webhook-signature.guard';
+import { WebhookSecret } from '../webhooks/decorators/webhook-secret.decorator';
 
 @Controller()
 export class MonitoringController {
@@ -23,6 +25,8 @@ export class MonitoringController {
 
   @Post('api/alerts/webhook')
   @HttpCode(200)
+  @UseGuards(WebhookSignatureGuard)
+  @WebhookSecret('ALERT_WEBHOOK_SECRET')
   async handleAlert(@Body() alert: any) {
     await this.alertService.handleAlert(alert);
     return { status: 'received' };

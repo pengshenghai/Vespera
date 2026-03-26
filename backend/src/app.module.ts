@@ -50,6 +50,8 @@ import { CleanupModule } from './modules/cleanup/cleanup.module';
 import { AiModule } from './modules/ai/ai.module';
 import { LoggerModule } from './common/services/logger.module';
 import { QueuesModule } from './modules/queues/queues.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { ScreeningModule } from './modules/screening/screening.module';
 
 const appLogger = new Logger('AppModule');
 
@@ -215,6 +217,8 @@ const appLogger = new Logger('AppModule');
     SearchModule,
     CleanupModule,
     AiModule,
+    WebhooksModule,
+    ScreeningModule,
     ...(process.env.OPENAPI_GENERATE !== 'true' ? [RateLimitingModule] : []),
     // Maintenance module
     require('./modules/maintenance/maintenance.module').MaintenanceModule,

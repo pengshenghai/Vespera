@@ -3,7 +3,16 @@
 import { create } from 'zustand';
 import { withMiddleware } from './middleware';
 import type { Notification } from '@/components/notifications/types';
-import { MOCK_NOTIFICATIONS } from '@/components/notifications/mockData';
+import { apiClient } from '@/lib/api-client';
+
+type BackendNotification = {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  type?: string | null;
+  createdAt: string;
+};
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,8 +22,8 @@ interface NotificationState {
 }
 
 interface NotificationActions {
-  /** Load notifications (uses mock data for now). */
-  fetchNotifications: () => void;
+  /** Load notifications from the API. */
+  fetchNotifications: () => Promise<void>;
   /** Mark a single notification as read. */
   markAsRead: (id: string) => void;
   /** Mark a single notification as unread. */
@@ -42,15 +51,40 @@ export const useNotificationStore = create<NotificationStore>()(
       isLoaded: false,
 
       // — actions
-      fetchNotifications: () => {
-        const sorted = [...MOCK_NOTIFICATIONS].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-        set((state) => {
-          state.notifications = sorted;
-          state.isLoaded = true;
-        });
+      fetchNotifications: async () => {
+        try {
+          const { data } = await apiClient.get<BackendNotification[]>(
+            '/notifications',
+          );
+          const sorted = data
+            .map((notification) => ({
+              id: notification.id,
+              type:
+                notification.type === 'maintenance' ||
+                notification.type === 'payment'
+                  ? notification.type
+                  : 'message',
+              title: notification.title,
+              body: notification.message,
+              read: notification.isRead,
+              createdAt: notification.createdAt,
+            }))
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            );
+
+          set((state) => {
+            state.notifications = sorted;
+            state.isLoaded = true;
+          });
+        } catch {
+          set((state) => {
+            state.notifications = [];
+            state.isLoaded = true;
+          });
+        }
       },
 
       markAsRead: (id) => {
