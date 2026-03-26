@@ -1,10 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/lib/query/provider';
 import { StoreHydrator } from '@/store/StoreHydrator';
 import { Toaster } from 'react-hot-toast';
 import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider';
 import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
+import PwaController from '@/components/pwa/PwaController';
+
+export const viewport: Viewport = {
+  themeColor: '#1d4ed8',
+  colorScheme: 'dark',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -35,6 +41,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'caxtonacollins' }],
   creator: 'Chioma',
   publisher: 'Chioma',
+  applicationName: 'Chioma',
+  manifest: '/manifest.webmanifest',
   formatDetection: {
     email: false,
     address: false,
@@ -91,6 +99,11 @@ export const metadata: Metadata = {
       { rel: 'android-chrome', url: '/android_512.png', sizes: '512x512' },
     ],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Chioma',
+  },
   category: 'technology',
   alternates: {
     canonical: '/',
@@ -108,6 +121,7 @@ export default function RootLayout({
         <QueryProvider>
           <StoreHydrator />
           <ErrorMonitoringProvider />
+          <PwaController />
           <NetworkStatusBanner />
           {children}
           <Toaster
