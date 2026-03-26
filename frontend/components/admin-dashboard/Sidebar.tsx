@@ -6,11 +6,12 @@ import { FaArrowRightFromBracket } from 'react-icons/fa6';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/Logo';
 import { MdSecurity } from 'react-icons/md';
-import { ShieldCheck, ShieldX } from 'lucide-react';
+import { CircleDollarSign, ShieldCheck, ShieldX } from 'lucide-react';
 
 /** Nav entries for routes that exist under `/app/admin` today. */
 const adminNavItems = [
   { icon: MdSecurity, label: 'Audit Logs', href: '/admin/audit-logs' },
+  { icon: CircleDollarSign, label: 'Refunds', href: '/admin/refunds' },
   { icon: ShieldCheck, label: 'Pending KYC', href: '/admin/kyc' },
   { icon: ShieldX, label: 'Rejected KYC', href: '/admin/kyc/rejected' },
 ];
