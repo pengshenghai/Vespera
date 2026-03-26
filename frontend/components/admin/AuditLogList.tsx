@@ -100,7 +100,10 @@ export const AuditLogList: React.FC<ListProps> = ({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-blue-200/60">
-                    {format(new Date(log.performedAt), 'MMM d, yyyy • HH:mm:ss')}
+                    {format(
+                      new Date(log.performedAt),
+                      'MMM d, yyyy • HH:mm:ss',
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button
