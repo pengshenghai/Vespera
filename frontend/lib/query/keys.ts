@@ -97,6 +97,13 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.users.all, 'detail', id] as const,
   },
 
+  // ── Roles / Permissions (Admin) ───────────────────────────────────────────
+  roles: {
+    all: ['roles'] as const,
+    list: () => [...queryKeys.roles.all, 'list'] as const,
+    permissions: () => [...queryKeys.roles.all, 'permissions'] as const,
+  },
+
   // ── KYC Verifications (Admin) ────────────────────────────────────────────
   kyc: {
     all: ['kyc'] as const,
