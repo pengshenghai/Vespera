@@ -33,7 +33,9 @@ export const storageApi = {
   },
 
   getDownloadUrl: async (key: string): Promise<string> => {
-    const urlResponse = await apiClient.get<{ url: string }>(`/storage/download-url?key=${encodeURIComponent(key)}`);
+    const urlResponse = await apiClient.get<{ url: string }>(
+      `/storage/download-url?key=${encodeURIComponent(key)}`,
+    );
     return urlResponse.data.url;
   },
 
