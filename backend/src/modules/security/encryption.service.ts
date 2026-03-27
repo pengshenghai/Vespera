@@ -6,7 +6,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
-
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
@@ -19,7 +18,8 @@ function getEncryptionKeys(configService: ConfigService): Buffer[] {
   const keysEnv = configService.get<string>('SECURITY_ENCRYPTION_KEYS');
   if (keysEnv) {
     return keysEnv.split(',').map((k) => {
-      if (k.length < 64) throw new Error('Each key must be at least 64 hex chars');
+      if (k.length < 64)
+        throw new Error('Each key must be at least 64 hex chars');
       return Buffer.from(k.slice(0, 64), 'hex');
     });
   }
@@ -28,7 +28,9 @@ function getEncryptionKeys(configService: ConfigService): Buffer[] {
   if (keyHex && keyHex.length >= 64) {
     return [Buffer.from(keyHex.slice(0, 64), 'hex')];
   }
-  throw new Error('SECURITY_ENCRYPTION_KEYS or SECURITY_ENCRYPTION_KEY is required');
+  throw new Error(
+    'SECURITY_ENCRYPTION_KEYS or SECURITY_ENCRYPTION_KEY is required',
+  );
 }
 
 /**

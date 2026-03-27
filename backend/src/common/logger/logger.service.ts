@@ -19,7 +19,12 @@ export class LoggerService {
   private logToFile = process.env.NODE_ENV === 'production';
   private logFile = 'logs/app.log';
 
-  private log(level: LogLevel, message: string, context: LogContext = {}, error?: Error) {
+  private log(
+    level: LogLevel,
+    message: string,
+    context: LogContext = {},
+    error?: Error,
+  ) {
     const logEntry = {
       timestamp: new Date().toISOString(),
       level,
