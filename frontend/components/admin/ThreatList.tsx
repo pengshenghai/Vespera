@@ -1,15 +1,20 @@
 'use client';
 
 import React from 'react';
-import { 
-  AlertCircle, 
-  ChevronRight, 
-  Shield, 
-  ShieldAlert, 
-  ShieldCheck, 
-  ShieldX 
+import {
+  AlertCircle,
+  ChevronRight,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  ShieldX,
 } from 'lucide-react';
-import { ThreatEvent, ThreatLevel, ThreatStatus, ThreatType } from '@/types/security';
+import {
+  ThreatEvent,
+  ThreatLevel,
+  ThreatStatus,
+  ThreatType,
+} from '@/types/security';
 
 interface ThreatListProps {
   threats: ThreatEvent[];
@@ -20,28 +25,50 @@ interface ThreatListProps {
     level: string;
     status: string;
   };
-  setFilters: (filters: { type: string; level: string; status: string; search: string }) => void;
+  setFilters: (filters: {
+    type: string;
+    level: string;
+    status: string;
+    search: string;
+  }) => void;
 }
 
-export function ThreatList({ threats, loading, onSelect, filters, setFilters }: ThreatListProps) {
+export function ThreatList({
+  threats,
+  loading,
+  onSelect,
+  filters,
+  setFilters,
+}: ThreatListProps) {
   const getLevelColor = (level: ThreatLevel) => {
     switch (level) {
-      case ThreatLevel.CRITICAL: return 'text-rose-500 bg-rose-500/10';
-      case ThreatLevel.HIGH: return 'text-orange-500 bg-orange-500/10';
-      case ThreatLevel.MEDIUM: return 'text-amber-500 bg-amber-500/10';
-      case ThreatLevel.LOW: return 'text-emerald-500 bg-emerald-500/10';
-      default: return 'text-blue-500 bg-blue-500/10';
+      case ThreatLevel.CRITICAL:
+        return 'text-rose-500 bg-rose-500/10';
+      case ThreatLevel.HIGH:
+        return 'text-orange-500 bg-orange-500/10';
+      case ThreatLevel.MEDIUM:
+        return 'text-amber-500 bg-amber-500/10';
+      case ThreatLevel.LOW:
+        return 'text-emerald-500 bg-emerald-500/10';
+      default:
+        return 'text-blue-500 bg-blue-500/10';
     }
   };
 
   const getStatusIcon = (status: ThreatStatus) => {
     switch (status) {
-      case ThreatStatus.MITIGATED: return <ShieldCheck className="text-emerald-500" size={16} />;
-      case ThreatStatus.DETECTED: return <AlertCircle className="text-rose-500" size={16} />;
-      case ThreatStatus.INVESTIGATING: return <Activity className="text-amber-500" size={16} />;
-      case ThreatStatus.CONFIRMED: return <ShieldAlert className="text-orange-500" size={16} />;
-      case ThreatStatus.FALSE_POSITIVE: return <ShieldX className="text-slate-500" size={16} />;
-      default: return <Shield className="text-blue-500" size={16} />;
+      case ThreatStatus.MITIGATED:
+        return <ShieldCheck className="text-emerald-500" size={16} />;
+      case ThreatStatus.DETECTED:
+        return <AlertCircle className="text-rose-500" size={16} />;
+      case ThreatStatus.INVESTIGATING:
+        return <Activity className="text-amber-500" size={16} />;
+      case ThreatStatus.CONFIRMED:
+        return <ShieldAlert className="text-orange-500" size={16} />;
+      case ThreatStatus.FALSE_POSITIVE:
+        return <ShieldX className="text-slate-500" size={16} />;
+      default:
+        return <Shield className="text-blue-500" size={16} />;
     }
   };
 
@@ -55,7 +82,9 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
         >
           <option value="">All Types</option>
           {Object.values(ThreatType).map((type) => (
-            <option key={type} value={type} className="bg-slate-900">{type.replace(/_/g, ' ')}</option>
+            <option key={type} value={type} className="bg-slate-900">
+              {type.replace(/_/g, ' ')}
+            </option>
           ))}
         </select>
 
@@ -66,7 +95,9 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
         >
           <option value="">All Severities</option>
           {Object.values(ThreatLevel).map((level) => (
-            <option key={level} value={level} className="bg-slate-900">{level}</option>
+            <option key={level} value={level} className="bg-slate-900">
+              {level}
+            </option>
           ))}
         </select>
 
@@ -77,7 +108,9 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
         >
           <option value="">All Statuses</option>
           {Object.values(ThreatStatus).map((status) => (
-            <option key={status} value={status} className="bg-slate-900">{status}</option>
+            <option key={status} value={status} className="bg-slate-900">
+              {status}
+            </option>
           ))}
         </select>
       </div>
@@ -99,20 +132,25 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
               [...Array(5)].map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   {[...Array(6)].map((_, j) => (
-                    <td key={j} className="px-6 py-4"><div className="h-4 w-24 rounded bg-white/10" /></td>
+                    <td key={j} className="px-6 py-4">
+                      <div className="h-4 w-24 rounded bg-white/10" />
+                    </td>
                   ))}
                 </tr>
               ))
             ) : threats.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-blue-200/40">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-blue-200/40"
+                >
                   No threats detected matching these filters.
                 </td>
               </tr>
             ) : (
               threats.map((threat) => (
-                <tr 
-                  key={threat.id} 
+                <tr
+                  key={threat.id}
                   className="group cursor-pointer hover:bg-white/[0.02] transition-colors"
                   onClick={() => onSelect(threat)}
                 >
@@ -121,7 +159,7 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
                       month: 'short',
                       day: 'numeric',
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
                     })}
                   </td>
                   <td className="px-6 py-4">
@@ -136,7 +174,9 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
                     {threat.ipAddress || 'unknown'}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${getLevelColor(threat.threatLevel)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${getLevelColor(threat.threatLevel)}`}
+                    >
                       {threat.threatLevel}
                     </span>
                   </td>

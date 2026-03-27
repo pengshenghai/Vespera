@@ -31,8 +31,8 @@ export default function AdminThreatsPage() {
   }
 
   return (
-      <main className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
-        <ThreatDashboard />
-      </main>
+    <main className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+      <ThreatDashboard />
+    </main>
   );
 }

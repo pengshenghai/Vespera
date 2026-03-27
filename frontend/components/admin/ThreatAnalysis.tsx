@@ -1,12 +1,7 @@
 'use client';
 
 import React from 'react';
-import { 
-  Zap, 
-  Target, 
-  ShieldCheck,
-  Search,
-} from 'lucide-react';
+import { Zap, Target, ShieldCheck, Search } from 'lucide-react';
 import { ThreatStats } from '@/types/security';
 
 interface ThreatAnalysisProps {
@@ -38,16 +33,21 @@ export function ThreatAnalysis({ stats, loading }: ThreatAnalysisProps) {
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
             .map(([type, count]) => (
-              <div key={type} className="group flex items-center justify-between">
+              <div
+                key={type}
+                className="group flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-400 group-hover:scale-150 transition-transform" />
-                    <span className="text-sm text-blue-100/80 capitalize">
-                      {type.replace(/_/g, ' ')}
-                    </span>
+                  <span className="text-sm text-blue-100/80 capitalize">
+                    {type.replace(/_/g, ' ')}
+                  </span>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-sm font-bold text-white">{count}</span>
-                  <span className="text-[10px] text-blue-200/40 font-mono">events</span>
+                  <span className="text-[10px] text-blue-200/40 font-mono">
+                    events
+                  </span>
                 </div>
               </div>
             ))}
@@ -61,13 +61,22 @@ export function ThreatAnalysis({ stats, loading }: ThreatAnalysisProps) {
         </div>
         <div className="space-y-4">
           {topOffendingIps.map((offender, i) => (
-            <div key={offender.ip} className="flex items-center justify-between">
+            <div
+              key={offender.ip}
+              className="flex items-center justify-between"
+            >
               <div className="flex items-center gap-3 overflow-hidden">
-                <span className="text-blue-200/40 text-xs font-mono w-4">{i + 1}.</span>
-                <span className="text-sm text-blue-100/80 font-mono truncate">{offender.ip}</span>
+                <span className="text-blue-200/40 text-xs font-mono w-4">
+                  {i + 1}.
+                </span>
+                <span className="text-sm text-blue-100/80 font-mono truncate">
+                  {offender.ip}
+                </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm font-bold text-white">{offender.count}</span>
+                <span className="text-sm font-bold text-white">
+                  {offender.count}
+                </span>
                 <button className="p-1.5 rounded-lg bg-white/5 text-blue-200/40 hover:bg-rose-500/20 hover:text-rose-400 transition-colors">
                   <ShieldCheck size={14} />
                 </button>
@@ -82,15 +91,15 @@ export function ThreatAnalysis({ stats, loading }: ThreatAnalysisProps) {
           <Zap className="text-blue-400" size={20} /> Technical Recommendations
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <Recommendation 
+          <Recommendation
             title="IP Rate Limiting"
             desc="Enable strict rate limiting for the top offending IPs detected in the last 24h."
           />
-          <Recommendation 
+          <Recommendation
             title="WAF Hardening"
             desc="Update WAF rules to pre-emptively block SQL injection patterns observed in recent logs."
           />
-          <Recommendation 
+          <Recommendation
             title="Auth MFA"
             desc="Review brute force attempts. Consider forcing MFA for accounts with repeated failures."
           />
@@ -100,7 +109,7 @@ export function ThreatAnalysis({ stats, loading }: ThreatAnalysisProps) {
   );
 }
 
-function Recommendation({ title, desc }: { title: string, desc: string }) {
+function Recommendation({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-bold text-blue-100">{title}</h4>

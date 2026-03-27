@@ -1,12 +1,7 @@
 'use client';
 
 import React from 'react';
-import { 
-  Shield, 
-  ShieldAlert, 
-  ShieldCheck, 
-  Activity
-} from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Activity } from 'lucide-react';
 import { ThreatStats as IThreatStats, ThreatLevel } from '@/types/security';
 
 interface ThreatStatsProps {
@@ -19,7 +14,10 @@ export function ThreatStats({ stats, loading }: ThreatStatsProps) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-3xl border border-white/10 bg-white/5 p-6 h-32" />
+          <div
+            key={i}
+            className="animate-pulse rounded-3xl border border-white/10 bg-white/5 p-6 h-32"
+          />
         ))}
       </div>
     );
@@ -42,7 +40,9 @@ export function ThreatStats({ stats, loading }: ThreatStatsProps) {
     },
     {
       title: 'High/Critical',
-      value: (threatsByLevel[ThreatLevel.HIGH] || 0) + (threatsByLevel[ThreatLevel.CRITICAL] || 0),
+      value:
+        (threatsByLevel[ThreatLevel.HIGH] || 0) +
+        (threatsByLevel[ThreatLevel.CRITICAL] || 0),
       icon: <ShieldAlert className="text-rose-400" size={24} />,
       label: 'Requires attention',
     },
@@ -57,12 +57,14 @@ export function ThreatStats({ stats, loading }: ThreatStatsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           className="rounded-3xl border border-white/10 bg-white/5 p-6 transition-all hover:border-white/20"
         >
           <div className="flex items-center justify-between">
-            <span className="text-blue-200/60 text-sm font-medium">{metric.title}</span>
+            <span className="text-blue-200/60 text-sm font-medium">
+              {metric.title}
+            </span>
             {metric.icon}
           </div>
           <div className="mt-4 flex items-baseline gap-2">

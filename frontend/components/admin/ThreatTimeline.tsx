@@ -26,15 +26,17 @@ export function ThreatTimeline({ stats, loading }: ThreatTimelineProps) {
 
   const data = stats.threatsOverTime.map((point) => ({
     ...point,
-    displayDate: new Date(point.date).toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    displayDate: new Date(point.date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
     }),
   }));
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-6 h-[400px]">
-      <h3 className="mb-6 text-lg font-semibold text-white">Threat Activity Timeline</h3>
+      <h3 className="mb-6 text-lg font-semibold text-white">
+        Threat Activity Timeline
+      </h3>
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
@@ -44,16 +46,20 @@ export function ThreatTimeline({ stats, loading }: ThreatTimelineProps) {
                 <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-            <XAxis 
-              dataKey="displayDate" 
-              stroke="rgba(255,255,255,0.4)" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.05)"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="displayDate"
+              stroke="rgba(255,255,255,0.4)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
-            <YAxis 
-              stroke="rgba(255,255,255,0.4)" 
+            <YAxis
+              stroke="rgba(255,255,255,0.4)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -66,7 +72,10 @@ export function ThreatTimeline({ stats, loading }: ThreatTimelineProps) {
                 color: '#fff',
               }}
               itemStyle={{ color: '#ef4444' }}
-              labelStyle={{ color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px' }}
+              labelStyle={{
+                color: 'rgba(255, 255, 255, 0.6)',
+                marginBottom: '4px',
+              }}
             />
             <Area
               type="monotone"

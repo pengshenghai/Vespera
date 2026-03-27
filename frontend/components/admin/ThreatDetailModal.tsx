@@ -1,16 +1,16 @@
 'use client';
 
 import React from 'react';
-import { 
-  X, 
-  Shield, 
-  ShieldAlert, 
-  ShieldCheck, 
-  History, 
-  Globe, 
+import {
+  X,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  History,
+  Globe,
   ExternalLink,
   Code,
-  Fingerprint
+  Fingerprint,
 } from 'lucide-react';
 import { ThreatEvent, ThreatLevel, ThreatStatus } from '@/types/security';
 
@@ -24,18 +24,23 @@ export function ThreatDetailModal({ threat, onClose }: ThreatDetailModalProps) {
 
   const getLevelColor = (level: ThreatLevel) => {
     switch (level) {
-      case ThreatLevel.CRITICAL: return 'text-rose-500 bg-rose-500/10';
-      case ThreatLevel.HIGH: return 'text-orange-500 bg-orange-500/10';
-      case ThreatLevel.MEDIUM: return 'text-amber-500 bg-amber-500/10';
-      case ThreatLevel.LOW: return 'text-emerald-500 bg-emerald-500/10';
-      default: return 'text-blue-500 bg-blue-500/10';
+      case ThreatLevel.CRITICAL:
+        return 'text-rose-500 bg-rose-500/10';
+      case ThreatLevel.HIGH:
+        return 'text-orange-500 bg-orange-500/10';
+      case ThreatLevel.MEDIUM:
+        return 'text-amber-500 bg-amber-500/10';
+      case ThreatLevel.LOW:
+        return 'text-emerald-500 bg-emerald-500/10';
+      default:
+        return 'text-blue-500 bg-blue-500/10';
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[32px] border border-white/10 bg-[#0f172a] p-8 shadow-2xl">
-        <button 
+        <button
           onClick={onClose}
           className="absolute right-6 top-6 rounded-full bg-white/5 p-2 text-blue-200/40 hover:bg-white/10 hover:text-white transition-all"
         >
@@ -43,7 +48,9 @@ export function ThreatDetailModal({ threat, onClose }: ThreatDetailModalProps) {
         </button>
 
         <header className="flex items-start gap-4 mb-8">
-          <div className={`p-3 rounded-2xl ${getLevelColor(threat.threatLevel)}`}>
+          <div
+            className={`p-3 rounded-2xl ${getLevelColor(threat.threatLevel)}`}
+          >
             <ShieldAlert size={28} />
           </div>
           <div>
@@ -56,47 +63,53 @@ export function ThreatDetailModal({ threat, onClose }: ThreatDetailModalProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-4">
-            <DetailItem 
-              icon={<History size={16} />} 
-              label="Detected At" 
-              value={new Date(threat.createdAt).toLocaleString()} 
+            <DetailItem
+              icon={<History size={16} />}
+              label="Detected At"
+              value={new Date(threat.createdAt).toLocaleString()}
             />
-            <DetailItem 
-              icon={<Globe size={16} />} 
-              label="IP Address" 
-              value={threat.ipAddress || 'Unknown'} 
+            <DetailItem
+              icon={<Globe size={16} />}
+              label="IP Address"
+              value={threat.ipAddress || 'Unknown'}
             />
-            <DetailItem 
-              icon={<ExternalLink size={16} />} 
-              label="Request Path" 
-              value={threat.requestPath || '/'} 
+            <DetailItem
+              icon={<ExternalLink size={16} />}
+              label="Request Path"
+              value={threat.requestPath || '/'}
             />
-            <DetailItem 
-              icon={<Fingerprint size={16} />} 
-              label="User ID" 
-              value={threat.userId || 'Anonymous'} 
+            <DetailItem
+              icon={<Fingerprint size={16} />}
+              label="User ID"
+              value={threat.userId || 'Anonymous'}
             />
           </div>
           <div className="space-y-4">
-            <DetailItem 
-              icon={<Shield size={16} />} 
-              label="Severity" 
-              value={<span className={`uppercase font-bold ${getLevelColor(threat.threatLevel).split(' ')[0]}`}>{threat.threatLevel}</span>} 
+            <DetailItem
+              icon={<Shield size={16} />}
+              label="Severity"
+              value={
+                <span
+                  className={`uppercase font-bold ${getLevelColor(threat.threatLevel).split(' ')[0]}`}
+                >
+                  {threat.threatLevel}
+                </span>
+              }
             />
-            <DetailItem 
-              icon={<Activity size={16} />} 
-              label="Status" 
-              value={<span className="capitalize">{threat.status}</span>} 
+            <DetailItem
+              icon={<Activity size={16} />}
+              label="Status"
+              value={<span className="capitalize">{threat.status}</span>}
             />
-            <DetailItem 
-              icon={<ShieldCheck size={16} />} 
-              label="Auto-Mitigated" 
-              value={threat.autoMitigated ? 'Yes' : 'No'} 
+            <DetailItem
+              icon={<ShieldCheck size={16} />}
+              label="Auto-Mitigated"
+              value={threat.autoMitigated ? 'Yes' : 'No'}
             />
-            <DetailItem 
-              icon={<Shield size={16} />} 
-              label="Blocked" 
-              value={threat.blocked ? 'Yes' : 'No'} 
+            <DetailItem
+              icon={<Shield size={16} />}
+              label="Blocked"
+              value={threat.blocked ? 'Yes' : 'No'}
             />
           </div>
         </div>
@@ -112,7 +125,7 @@ export function ThreatDetailModal({ threat, onClose }: ThreatDetailModalProps) {
         </section>
 
         <footer className="flex justify-end gap-3">
-          <button 
+          <button
             onClick={onClose}
             className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-all"
           >
@@ -129,7 +142,15 @@ export function ThreatDetailModal({ threat, onClose }: ThreatDetailModalProps) {
   );
 }
 
-function DetailItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
+function DetailItem({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div className="flex items-start gap-3">
       <div className="mt-0.5 text-blue-200/40">{icon}</div>
