@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { apiClient } from '../api-client';
 
 export interface FileMetadata {
   id: string;
@@ -14,7 +12,7 @@ export interface FileMetadata {
 
 export const storageApi = {
   listFiles: async (): Promise<FileMetadata[]> => {
-    const response = await axios.get(`${API_BASE_URL}/storage`);
+    const response = await apiClient.get<FileMetadata[]>('/storage');
     return response.data;
   },
 
@@ -23,46 +21,47 @@ export const storageApi = {
     fileSize: number,
     fileType: string,
   ): Promise<{ url: string; key: string }> => {
-    const response = await axios.post(`${API_BASE_URL}/storage/upload-url`, {
-      fileName,
-      fileSize,
-      fileType,
-    });
+    const response = await apiClient.post<{ url: string; key: string }>(
+      '/storage/upload-url',
+      {
+        fileName,
+        fileSize,
+        fileType,
+      },
+    );
     return response.data;
   },
 
   getDownloadUrl: async (key: string): Promise<string> => {
-    const response = await axios.get(`${API_BASE_URL}/storage/download-url`, {
-      params: { key },
-    });
-    return response.data.url;
+    const urlResponse = await apiClient.get<{ url: string }>(`/storage/download-url?key=${encodeURIComponent(key)}`);
+    return urlResponse.data.url;
   },
 
   updateMetadata: async (
     key: string,
     fileName: string,
   ): Promise<FileMetadata> => {
-    const response = await axios.patch(
-      `${API_BASE_URL}/storage`,
+    const response = await apiClient.patch<FileMetadata>(
+      `/storage?key=${encodeURIComponent(key)}`,
       { fileName },
-      {
-        params: { key },
-      },
     );
     return response.data;
   },
 
   deleteFile: async (key: string): Promise<void> => {
-    await axios.delete(`${API_BASE_URL}/storage`, {
-      params: { key },
-    });
+    await apiClient.delete(`/storage?key=${encodeURIComponent(key)}`);
   },
 
   uploadToS3: async (url: string, file: File): Promise<void> => {
-    await axios.put(url, file, {
+    const response = await fetch(url, {
+      method: 'PUT',
       headers: {
         'Content-Type': file.type,
       },
+      body: file,
     });
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
   },
 };
