@@ -7,10 +7,7 @@ import { User } from '../users/entities/user.entity';
 import { StellarModule } from '../stellar/stellar.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Referral, User]),
-    StellarModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Referral, User]), StellarModule],
   providers: [ReferralService],
   controllers: [ReferralController],
   exports: [ReferralService],

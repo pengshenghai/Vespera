@@ -35,7 +35,9 @@ export class ReferralService {
     let exists = true;
     while (exists) {
       code = this.generateCode();
-      const user = await this.userRepository.findOne({ where: { referralCode: code } });
+      const user = await this.userRepository.findOne({
+        where: { referralCode: code },
+      });
       if (!user) {
         exists = false;
         return code;
@@ -45,9 +47,13 @@ export class ReferralService {
   }
 
   async trackReferral(referredUser: User, referralCode: string): Promise<void> {
-    const referrer = await this.userRepository.findOne({ where: { referralCode } });
+    const referrer = await this.userRepository.findOne({
+      where: { referralCode },
+    });
     if (!referrer) {
-      this.logger.warn(`Referral code ${referralCode} not found for user ${referredUser.id}`);
+      this.logger.warn(
+        `Referral code ${referralCode} not found for user ${referredUser.id}`,
+      );
       return;
     }
 
@@ -69,7 +75,9 @@ export class ReferralService {
       referredById: referrer.id,
     });
 
-    this.logger.log(`Tracked referral: ${referrer.id} referred ${referredUser.id}`);
+    this.logger.log(
+      `Tracked referral: ${referrer.id} referred ${referredUser.id}`,
+    );
   }
 
   async completeReferral(referredUserId: string): Promise<void> {
@@ -93,17 +101,29 @@ export class ReferralService {
   }
 
   private async distributeReward(referral: Referral): Promise<void> {
-    const rewardAmount = this.configService.get<number>('REFERRAL_REWARD_AMOUNT', 10); // Default 10 units
-    const rewardAsset = this.configService.get<string>('REFERRAL_REWARD_ASSET', 'USDC');
-    
+    const rewardAmount = this.configService.get<number>(
+      'REFERRAL_REWARD_AMOUNT',
+      10,
+    ); // Default 10 units
+    const rewardAsset = this.configService.get<string>(
+      'REFERRAL_REWARD_ASSET',
+      'USDC',
+    );
+
     // In a real scenario, we would use StellarService to send the reward
     // This is a placeholder for the Stellar integration
     try {
-      this.logger.log(`Distributing reward of ${rewardAmount} ${rewardAsset} to referrer ${referral.referrerId}`);
-      
-      const referrer = await this.userRepository.findOne({ where: { id: referral.referrerId } });
+      this.logger.log(
+        `Distributing reward of ${rewardAmount} ${rewardAsset} to referrer ${referral.referrerId}`,
+      );
+
+      const referrer = await this.userRepository.findOne({
+        where: { id: referral.referrerId },
+      });
       if (!referrer || !referrer.walletAddress) {
-        this.logger.error(`Referrer ${referral.referrerId} has no wallet address`);
+        this.logger.error(
+          `Referrer ${referral.referrerId} has no wallet address`,
+        );
         return;
       }
 
@@ -115,8 +135,9 @@ export class ReferralService {
       // );
 
       // Simulate a tx hash for now
-      const txHash = 'fake_stellar_tx_hash_' + Math.random().toString(36).substring(7);
-      
+      const txHash =
+        'fake_stellar_tx_hash_' + Math.random().toString(36).substring(7);
+
       referral.status = ReferralStatus.REWARDED;
       referral.rewardAmount = rewardAmount;
       referral.rewardTxHash = txHash;
@@ -135,14 +156,21 @@ export class ReferralService {
     });
 
     const totalReferrals = referrals.length;
-    const completedReferrals = referrals.filter(r => r.status === ReferralStatus.COMPLETED || r.status === ReferralStatus.REWARDED).length;
-    const totalRewards = referrals.reduce((sum, r) => sum + Number(r.rewardAmount), 0);
+    const completedReferrals = referrals.filter(
+      (r) =>
+        r.status === ReferralStatus.COMPLETED ||
+        r.status === ReferralStatus.REWARDED,
+    ).length;
+    const totalRewards = referrals.reduce(
+      (sum, r) => sum + Number(r.rewardAmount),
+      0,
+    );
 
     return {
       totalReferrals,
       completedReferrals,
       totalRewards,
-      referrals: referrals.map(r => ({
+      referrals: referrals.map((r) => ({
         id: r.id,
         referredName: `${r.referred.firstName} ${r.referred.lastName}`,
         status: r.status,

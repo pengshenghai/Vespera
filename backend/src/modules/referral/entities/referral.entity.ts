@@ -45,10 +45,21 @@ export class Referral {
   })
   status: ReferralStatus;
 
-  @Column({ name: 'reward_amount', type: 'decimal', precision: 20, scale: 7, default: 0 })
+  @Column({
+    name: 'reward_amount',
+    type: 'decimal',
+    precision: 20,
+    scale: 7,
+    default: 0,
+  })
   rewardAmount: number;
 
-  @Column({ name: 'reward_tx_hash', type: 'varchar', length: 64, nullable: true })
+  @Column({
+    name: 'reward_tx_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   rewardTxHash: string | null;
 
   @Column({ name: 'converted_at', type: 'timestamp', nullable: true })

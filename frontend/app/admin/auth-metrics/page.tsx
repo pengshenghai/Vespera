@@ -88,7 +88,7 @@ const generateMockAuthStats = (): AuthStats => {
         averageDuration: 380.23,
       },
     },
-    dailyTrend: dates.map(date => ({
+    dailyTrend: dates.map((date) => ({
       date,
       attempts: Math.floor(Math.random() * 50) + 20,
       successes: Math.floor(Math.random() * 40) + 15,
@@ -136,13 +136,17 @@ export default function AuthMetricsPage() {
             <Shield size={32} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">Auth Metrics</h1>
-            <p className="text-blue-200/60 mt-1">Real-time authentication patterns and security insights.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              Auth Metrics
+            </h1>
+            <p className="text-blue-200/60 mt-1">
+              Real-time authentication patterns and security insights.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <select 
-            value={days} 
+          <select
+            value={days}
             onChange={(e) => setDays(Number(e.target.value))}
             className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -162,54 +166,141 @@ export default function AuthMetricsPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard title="Total Login Attempts" value={stats.totalAttempts} icon={MousePointer2} trend="up" trendValue="+12%" />
-        <MetricCard title="Successful Logins" value={stats.successfulAttempts} icon={CheckCircle2} color="emerald" />
-        <MetricCard title="Failed Logins" value={stats.failedAttempts} icon={AlertTriangle} color="red" />
-        <MetricCard title="Success Rate" value={`${stats.successRate}%`} icon={TrendingUp} color="indigo" />
+        <MetricCard
+          title="Total Login Attempts"
+          value={stats.totalAttempts}
+          icon={MousePointer2}
+          trend="up"
+          trendValue="+12%"
+        />
+        <MetricCard
+          title="Successful Logins"
+          value={stats.successfulAttempts}
+          icon={CheckCircle2}
+          color="emerald"
+        />
+        <MetricCard
+          title="Failed Logins"
+          value={stats.failedAttempts}
+          icon={AlertTriangle}
+          color="red"
+        />
+        <MetricCard
+          title="Success Rate"
+          value={`${stats.successRate}%`}
+          icon={TrendingUp}
+          color="indigo"
+        />
       </div>
 
       {/* Main Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Login Trends</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">
+            Login Trends
+          </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.dailyTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="rgba(255,255,255,0.5)" 
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} 
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(255,255,255,0.5)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                   tickFormatter={(val) => val.split('-').slice(1).join('/')}
                 />
-                <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                <YAxis
+                  stroke="rgba(255,255,255,0.5)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#0F172A',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                  }}
                   itemStyle={{ color: '#fff' }}
                 />
-                <Line type="monotone" dataKey="successes" name="Success" stroke="#10b981" strokeWidth={3} dot={false} />
-                <Line type="monotone" dataKey="failures" name="Failure" stroke="#ef4444" strokeWidth={3} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="successes"
+                  name="Success"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="failures"
+                  name="Failure"
+                  stroke="#ef4444"
+                  strokeWidth={3}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Method Breakdown</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">
+            Method Breakdown
+          </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={[
-                { name: 'Password', attempts: stats.methodBreakdown.password.attempts, successes: stats.methodBreakdown.password.successes },
-                { name: 'Stellar Auth', attempts: stats.methodBreakdown.stellar.attempts, successes: stats.methodBreakdown.stellar.successes },
-              ]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} />
-                <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+              <BarChart
+                data={[
+                  {
+                    name: 'Password',
+                    attempts: stats.methodBreakdown.password.attempts,
+                    successes: stats.methodBreakdown.password.successes,
+                  },
+                  {
+                    name: 'Stellar Auth',
+                    attempts: stats.methodBreakdown.stellar.attempts,
+                    successes: stats.methodBreakdown.stellar.successes,
+                  },
+                ]}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                  vertical={false}
                 />
-                <Bar dataKey="attempts" name="Attempts" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
-                <Bar dataKey="successes" name="Successes" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
+                <XAxis
+                  dataKey="name"
+                  stroke="rgba(255,255,255,0.5)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                />
+                <YAxis
+                  stroke="rgba(255,255,255,0.5)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#0F172A',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                  }}
+                />
+                <Bar
+                  dataKey="attempts"
+                  name="Attempts"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                />
+                <Bar
+                  dataKey="successes"
+                  name="Successes"
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -219,17 +310,21 @@ export default function AuthMetricsPage() {
       {/* Error Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Error Analysis</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">
+            Error Analysis
+          </h3>
           <div className="space-y-6">
             {stats.errorBreakdown.map((error, idx) => (
               <div key={idx} className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-white font-medium">{error.error}</span>
-                  <span className="text-blue-200/60">{error.count} occurrences ({error.percentage}%)</span>
+                  <span className="text-blue-200/60">
+                    {error.count} occurrences ({error.percentage}%)
+                  </span>
                 </div>
                 <div className="w-full bg-white/5 rounded-full h-2">
-                  <div 
-                    className="bg-red-500 h-2 rounded-full transition-all duration-500" 
+                  <div
+                    className="bg-red-500 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${error.percentage}%` }}
                   ></div>
                 </div>
@@ -239,12 +334,26 @@ export default function AuthMetricsPage() {
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">System Health</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">
+            System Health
+          </h3>
           <div className="space-y-6">
             <HealthIndicator label="MFA Adoption" value="32%" status="good" />
-            <HealthIndicator label="Avg. Response Time" value="245ms" status="good" />
-            <HealthIndicator label="Brute-force Blocked" value="12" status="warning" />
-            <HealthIndicator label="Account Lockouts" value="4" status="normal" />
+            <HealthIndicator
+              label="Avg. Response Time"
+              value="245ms"
+              status="good"
+            />
+            <HealthIndicator
+              label="Brute-force Blocked"
+              value="12"
+              status="warning"
+            />
+            <HealthIndicator
+              label="Account Lockouts"
+              value="4"
+              status="normal"
+            />
           </div>
         </div>
       </div>
@@ -261,7 +370,14 @@ interface MetricCardProps {
   trendValue?: string;
 }
 
-function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValue }: MetricCardProps) {
+function MetricCard({
+  title,
+  value,
+  icon: Icon,
+  color = 'blue',
+  trend,
+  trendValue,
+}: MetricCardProps) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
     emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20',
@@ -276,13 +392,20 @@ function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValu
           <p className="text-blue-200/60 text-sm font-medium mb-1">{title}</p>
           <p className="text-3xl font-bold text-white tabular-nums">{value}</p>
           {trend && (
-            <p className={`mt-2 text-xs flex items-center ${trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
-              <TrendingUp size={12} className={`mr-1 ${trend === 'down' ? 'rotate-180' : ''}`} />
+            <p
+              className={`mt-2 text-xs flex items-center ${trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}
+            >
+              <TrendingUp
+                size={12}
+                className={`mr-1 ${trend === 'down' ? 'rotate-180' : ''}`}
+              />
               {trendValue} from last period
             </p>
           )}
         </div>
-        <div className={`w-12 h-12 ${colors[color]} rounded-2xl flex items-center justify-center border group-hover:scale-110 transition-transform duration-300`}>
+        <div
+          className={`w-12 h-12 ${colors[color]} rounded-2xl flex items-center justify-center border group-hover:scale-110 transition-transform duration-300`}
+        >
           <Icon size={24} />
         </div>
       </div>
@@ -290,7 +413,15 @@ function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValu
   );
 }
 
-function HealthIndicator({ label, value, status }: { label: string, value: string, status: 'good' | 'warning' | 'normal' }) {
+function HealthIndicator({
+  label,
+  value,
+  status,
+}: {
+  label: string;
+  value: string;
+  status: 'good' | 'warning' | 'normal';
+}) {
   const dots: Record<string, string> = {
     good: 'bg-emerald-400',
     warning: 'bg-yellow-400',
@@ -300,7 +431,9 @@ function HealthIndicator({ label, value, status }: { label: string, value: strin
   return (
     <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
       <div className="flex items-center gap-3">
-        <div className={`w-2 h-2 rounded-full ${dots[status]} shadow-[0_0_8px_rgba(0,0,0,0.5)]`}></div>
+        <div
+          className={`w-2 h-2 rounded-full ${dots[status]} shadow-[0_0_8px_rgba(0,0,0,0.5)]`}
+        ></div>
         <span className="text-blue-200/70 text-sm">{label}</span>
       </div>
       <span className="text-white font-bold">{value}</span>

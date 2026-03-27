@@ -32,11 +32,22 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ name: 'email_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'email_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   emailEncrypted?: Buffer | null;
 
   @Index('idx_users_email_hash', { unique: false })
-  @Column({ name: 'email_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'email_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   emailHash?: string | null;
 
   @Exclude()
@@ -52,11 +63,22 @@ export class User {
   @Column({ name: 'phone_number', nullable: true, type: 'varchar' })
   phoneNumber: string | null;
 
-  @Column({ name: 'phone_number_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'phone_number_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   phoneNumberEncrypted?: Buffer | null;
 
   @Index('idx_users_phone_hash', { unique: false })
-  @Column({ name: 'phone_number_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'phone_number_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   phoneNumberHash?: string | null;
 
   @Column({ name: 'avatar_url', nullable: true, type: 'varchar' })
@@ -109,11 +131,22 @@ export class User {
   })
   walletAddress: string | null;
 
-  @Column({ name: 'wallet_address_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'wallet_address_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   walletAddressEncrypted?: Buffer | null;
 
   @Index('idx_users_wallet_hash', { unique: false })
-  @Column({ name: 'wallet_address_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'wallet_address_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   walletAddressHash?: string | null;
 
   @Column({
@@ -146,7 +179,12 @@ export class User {
   deletedAt?: Date | null;
 
   @Index({ unique: true })
-  @Column({ name: 'referral_code', type: 'varchar', length: 10, nullable: true })
+  @Column({
+    name: 'referral_code',
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
   referralCode?: string | null;
 
   @Column({ name: 'referred_by_id', type: 'uuid', nullable: true })

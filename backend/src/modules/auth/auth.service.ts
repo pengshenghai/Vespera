@@ -53,7 +53,8 @@ export class AuthService {
 
   @Logging({ service: 'AuthService' })
   async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
-    const { email, password, firstName, lastName, role, referralCode } = registerDto;
+    const { email, password, firstName, lastName, role, referralCode } =
+      registerDto;
     const normalizedEmail = email.toLowerCase();
 
     // Validate password against policy
@@ -93,9 +94,13 @@ export class AuthService {
 
     // Track referral if code provided
     if (referralCode) {
-      await this.referralService.trackReferral(savedUser, referralCode).catch((err) => {
-        this.logger.error(`Failed to track referral for user ${savedUser.id}: ${err.message}`);
-      });
+      await this.referralService
+        .trackReferral(savedUser, referralCode)
+        .catch((err) => {
+          this.logger.error(
+            `Failed to track referral for user ${savedUser.id}: ${err.message}`,
+          );
+        });
     }
 
     this.logger.log(`User registered successfully: ${savedUser.id}`);
