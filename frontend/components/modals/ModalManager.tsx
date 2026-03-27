@@ -18,6 +18,12 @@ import { PaymentModal } from './PaymentModal';
 import type { DashboardDispute } from '@/lib/dashboard-data';
 import { RefundModal } from './RefundModal';
 import { UserManagementModal } from './UserManagementModal';
+import { RefundRequestModal } from './RefundRequestModal';
+import type { RefundRequestData } from './RefundRequestModal';
+import { UserProfileEditModal } from './UserProfileEditModal';
+import type { UserProfileData } from './UserProfileEditModal';
+import { AccountSettingsModal } from './AccountSettingsModal';
+import type { AccountSettingsData } from './AccountSettingsModal';
 import dynamic from 'next/dynamic';
 import type { Document, DocumentMetadata } from '@/components/documents';
 import type {
@@ -350,6 +356,58 @@ export const ModalManager: React.FC = () => {
             modalState.data?.onDelete as
               | ((userId: string) => Promise<void>)
               | undefined
+          }
+        />
+      );
+
+    case 'refundRequest':
+      return (
+        <RefundRequestModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          paymentId={modalState.data?.paymentId as string | undefined}
+          paymentAmount={modalState.data?.paymentAmount as number | undefined}
+          propertyName={modalState.data?.propertyName as string | undefined}
+          onSubmit={
+            modalState.data?.onSubmit as
+              | ((data: RefundRequestData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
+    case 'userProfileEdit':
+      return (
+        <UserProfileEditModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          profile={modalState.data?.profile as Partial<UserProfileData> | undefined}
+          onSubmit={
+            modalState.data?.onSubmit as
+              | ((data: UserProfileData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
+    case 'accountSettings':
+      return (
+        <AccountSettingsModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          settings={modalState.data?.settings as AccountSettingsData | undefined}
+          onSaveSettings={
+            modalState.data?.onSaveSettings as
+              | ((data: AccountSettingsData) => Promise<void>)
+              | undefined
+          }
+          onChangePassword={
+            modalState.data?.onChangePassword as
+              | ((currentPassword: string, newPassword: string) => Promise<void>)
+              | undefined
+          }
+          onDeleteAccount={
+            modalState.data?.onDeleteAccount as (() => Promise<void>) | undefined
           }
         />
       );
