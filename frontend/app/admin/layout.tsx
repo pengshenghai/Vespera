@@ -12,6 +12,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const pageTitleMap: Record<string, string> = {
     '/admin/audit-logs': 'Audit Logs',
+    '/admin/anchor-transactions': 'Anchor Transactions',
   };
 
   const pageTitle = pageTitleMap[pathname] ?? 'Admin';

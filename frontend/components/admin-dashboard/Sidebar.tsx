@@ -6,10 +6,16 @@ import { FaArrowRightFromBracket } from 'react-icons/fa6';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/Logo';
 import { MdSecurity } from 'react-icons/md';
+import { Anchor } from 'lucide-react';
 
 /** Nav entries for routes that exist under `/app/admin` today. */
 const adminNavItems = [
   { icon: MdSecurity, label: 'Audit Logs', href: '/admin/audit-logs' },
+  {
+    icon: Anchor,
+    label: 'Anchor Transactions',
+    href: '/admin/anchor-transactions',
+  },
 ];
 
 export function getAdminNavItems() {
