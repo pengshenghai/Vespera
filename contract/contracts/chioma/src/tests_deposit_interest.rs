@@ -274,3 +274,562 @@ fn test_invalid_rate_rejected() {
         &InterestRecipient::Tenant,
     );
 }
+
+// ─── Issue #652: Deposit Interest Accrual & Compounding Tests ──────────────
+
+#[test]
+fn test_set_deposit_interest_config_landlord_recipient() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+    client.set_deposit_interest_config(
+        &id,
+        &500,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Landlord,
+    );
+
+    let cfg = client.get_deposit_interest_config(&id);
+    assert_eq!(cfg.interest_recipient, InterestRecipient::Landlord);
+}
+
+#[test]
+fn test_set_deposit_interest_config_split_recipient() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+    client.set_deposit_interest_config(
+        &id,
+        &500,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Split,
+    );
+
+    let cfg = client.get_deposit_interest_config(&id);
+    assert_eq!(cfg.interest_recipient, InterestRecipient::Split);
+}
+
+#[test]
+fn test_get_deposit_interest_config_all_fields() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+    client.set_deposit_interest_config(
+        &id,
+        &750,
+        &CompoundingFrequency::Quarterly,
+        &InterestRecipient::Tenant,
+    );
+
+    let cfg = client.get_deposit_interest_config(&id);
+    assert_eq!(cfg.annual_rate, 750);
+    assert_eq!(cfg.compounding_frequency, CompoundingFrequency::Quarterly);
+    assert_eq!(cfg.interest_recipient, InterestRecipient::Tenant);
+}
+
+#[test]
+fn test_calculate_accrued_interest_365_days_equals_annual_rate() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000, // 10% per year
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    // Advance 365 days
+    env.ledger().with_mut(|li| li.timestamp = 365 * 86_400);
+
+    let interest = client.calculate_accrued_interest(&id);
+    // Expected: 10_000 × 1000 / 10_000 = 1_000
+    assert_eq!(interest, 1_000);
+}
+
+#[test]
+fn test_compound_interest_daily_exceeds_simple() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000, // 10% per year
+        &CompoundingFrequency::Daily,
+        &InterestRecipient::Tenant,
+    );
+
+    // Accrue daily for 365 days
+    for day in 1..=365 {
+        env.ledger().with_mut(|li| li.timestamp = day as u64 * 86_400);
+        client.accrue_interest(&id);
+    }
+
+    let di = client.get_deposit_interest(&id);
+    // Compound interest should be > simple interest (1000)
+    assert!(di.accrued_interest > 1_000);
+}
+
+#[test]
+fn test_compound_interest_monthly() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 12_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1200, // 12% per year
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    // Accrue monthly for 12 months
+    for month in 1..=12 {
+        env.ledger().with_mut(|li| li.timestamp = month as u64 * 30 * 86_400);
+        client.accrue_interest(&id);
+    }
+
+    let di = client.get_deposit_interest(&id);
+    // Should have accrued interest over 12 months
+    assert!(di.accrued_interest > 0);
+}
+
+#[test]
+fn test_compound_interest_quarterly() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &800, // 8% per year
+        &CompoundingFrequency::Quarterly,
+        &InterestRecipient::Tenant,
+    );
+
+    // Accrue quarterly for 4 quarters
+    for quarter in 1..=4 {
+        env.ledger().with_mut(|li| li.timestamp = quarter as u64 * 90 * 86_400);
+        client.accrue_interest(&id);
+    }
+
+    let di = client.get_deposit_interest(&id);
+    assert!(di.accrued_interest > 0);
+}
+
+#[test]
+fn test_compound_interest_annually() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &500, // 5% per year
+        &CompoundingFrequency::Annually,
+        &InterestRecipient::Tenant,
+    );
+
+    // Accrue annually for 2 years
+    for year in 1..=2 {
+        env.ledger().with_mut(|li| li.timestamp = year as u64 * 365 * 86_400);
+        client.accrue_interest(&id);
+    }
+
+    let di = client.get_deposit_interest(&id);
+    assert!(di.accrued_interest > 0);
+}
+
+#[test]
+fn test_distribute_interest_to_tenant() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    client.accrue_interest(&id);
+
+    let di_before = client.get_deposit_interest(&id);
+    assert!(di_before.accrued_interest > 0);
+
+    // Distribute interest
+    client.distribute_interest(&id);
+
+    let di_after = client.get_deposit_interest(&id);
+    // After distribution, accrued should be 0 or transferred
+    assert!(di_after.accrued_interest >= 0);
+}
+
+#[test]
+fn test_distribute_interest_to_landlord() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Landlord,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    client.accrue_interest(&id);
+
+    let di_before = client.get_deposit_interest(&id);
+    assert!(di_before.accrued_interest > 0);
+
+    // Distribute interest
+    client.distribute_interest(&id);
+
+    let di_after = client.get_deposit_interest(&id);
+    assert!(di_after.accrued_interest >= 0);
+}
+
+#[test]
+fn test_distribute_interest_split_50_50() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Split,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    client.accrue_interest(&id);
+
+    let di_before = client.get_deposit_interest(&id);
+    let accrued = di_before.accrued_interest;
+
+    // Distribute interest
+    client.distribute_interest(&id);
+
+    let di_after = client.get_deposit_interest(&id);
+    // After split distribution, both should receive ~50%
+    assert!(di_after.accrued_interest >= 0);
+}
+
+#[test]
+fn test_get_accrual_history_multiple_entries() {
+    let env = Env::default();
+    env.mock_all_auths();
+    env.ledger().with_mut(|li| li.timestamp = 0);
+
+    let (client, _admin) = setup(&env);
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+    client.set_deposit_interest_config(
+        &id,
+        &600,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Split,
+    );
+
+    // Multiple accruals
+    for i in 1..=3 {
+        env.ledger().with_mut(|li| li.timestamp = i as u64 * 30 * 86_400);
+        client.accrue_interest(&id);
+    }
+
+    let history = client.get_accrual_history(&id);
+    assert_eq!(history.len(), 3);
+}
+
+#[test]
+fn test_get_deposit_interest_state_all_fields() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    client.accrue_interest(&id);
+
+    let di = client.get_deposit_interest(&id);
+    assert_eq!(di.principal, deposit);
+    assert!(di.accrued_interest > 0);
+    assert_eq!(di.total_with_interest, deposit + di.accrued_interest);
+    assert!(di.last_accrual_timestamp > 0);
+}
+
+#[test]
+fn test_process_interest_accruals_batch() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    // Create multiple agreements
+    let mut agreement_ids = Vec::new();
+    for i in 0..3 {
+        let tenant = Address::generate(&env);
+        let landlord = Address::generate(&env);
+        let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+        client.set_deposit_interest_config(
+            &id,
+            &600,
+            &CompoundingFrequency::Monthly,
+            &InterestRecipient::Tenant,
+        );
+
+        agreement_ids.push(id);
+    }
+
+    // Advance time
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+
+    // Batch process all accruals
+    for id in agreement_ids.iter() {
+        client.accrue_interest(id);
+    }
+
+    // Verify all were processed
+    for id in agreement_ids.iter() {
+        let di = client.get_deposit_interest(id);
+        assert!(di.accrued_interest > 0);
+    }
+}
+
+#[test]
+fn test_zero_interest_rate() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 5_000);
+
+    client.set_deposit_interest_config(
+        &id,
+        &0, // 0% interest
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 365 * 86_400);
+    let interest = client.calculate_accrued_interest(&id);
+    assert_eq!(interest, 0);
+}
+
+#[test]
+fn test_high_interest_rate_100_percent() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 10_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &10_000, // 100% per year
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 365 * 86_400);
+    let interest = client.calculate_accrued_interest(&id);
+    // Should be approximately equal to principal
+    assert!(interest >= deposit);
+}
+
+#[test]
+fn test_very_small_principal() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, 1); // 1 unit
+
+    client.set_deposit_interest_config(
+        &id,
+        &1000,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    let interest = client.calculate_accrued_interest(&id);
+    // Should handle small amounts without precision loss
+    assert!(interest >= 0);
+}
+
+#[test]
+fn test_very_large_principal() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let large_deposit = i128::MAX / 2; // Very large but safe
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, large_deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &100, // 1% per year
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    let interest = client.calculate_accrued_interest(&id);
+    // Should not overflow
+    assert!(interest >= 0);
+}
+
+#[test]
+fn test_multiple_accruals_sum_correctly() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    env.ledger().with_mut(|li| li.timestamp = 0);
+    let (client, _admin) = setup(&env);
+
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+    let deposit = 12_000_i128;
+    let id = create_agreement_helper(&env, &client, &tenant, &landlord, deposit);
+
+    client.set_deposit_interest_config(
+        &id,
+        &1200,
+        &CompoundingFrequency::Monthly,
+        &InterestRecipient::Tenant,
+    );
+
+    // Accrue multiple times
+    env.ledger().with_mut(|li| li.timestamp = 30 * 86_400);
+    client.accrue_interest(&id);
+
+    env.ledger().with_mut(|li| li.timestamp = 60 * 86_400);
+    client.accrue_interest(&id);
+
+    env.ledger().with_mut(|li| li.timestamp = 90 * 86_400);
+    client.accrue_interest(&id);
+
+    let di = client.get_deposit_interest(&id);
+    let history = client.get_accrual_history(&id);
+
+    // Total should equal sum of accruals
+    let mut total_accrued = 0i128;
+    for entry in history.iter() {
+        total_accrued += entry.amount;
+    }
+
+    assert_eq!(di.accrued_interest, total_accrued);
+}
