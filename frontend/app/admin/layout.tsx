@@ -17,10 +17,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  // Base title from central config
+  // Centralized base title
   let pageTitle = getAdminPageTitle(pathname);
 
-  // Extend for dynamic routes (feature branch logic)
+  // Dynamic routes (merged from feature branches)
   if (
     /^\/admin\/refunds\/.+/.test(pathname) &&
     pathname !== '/admin/refunds'
@@ -35,6 +35,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     pageTitle = 'User Detail';
   }
 
+  if (
+    /^\/admin\/disputes\/.+/.test(pathname) &&
+    pathname !== '/admin/disputes'
+  ) {
+    pageTitle = 'Dispute Detail';
+  }
+
+  // Role-based access
   const canAccessAdmin = ['admin', 'support', 'auditor'].includes(
     user?.role ?? '',
   );
