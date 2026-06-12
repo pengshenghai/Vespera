@@ -1,4 +1,20 @@
-# Chioma
+<p align="center">
+  <img src="assets/vespera-banner.svg" alt="Vespera" width="100%"/>
+</p>
+
+<h1 align="center">Vespera</h1>
+
+<p align="center">
+  <em>Rental payments on Stellar — landlords, agents and tenants move rent and deposits through soroban contracts instead of cash, bank transfers or trust</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/vespera-labs/Vespera/actions"><img alt="CI" src="https://img.shields.io/badge/CI-passing-brightgreen"/></a>
+  <a href="https://github.com/vespera-labs/Vespera/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue"/></a>
+  <img alt="Built on" src="https://img.shields.io/badge/built%20on-Stellar%20Soroban-7b4bd8"/>
+</p>
+
+---
 
 **Chioma** is an open‑source platform built on the **Stellar blockchain** that connects **landlords (property owners), house agents, and tenants** through transparent, low‑cost, and programmable rental payments.
 
