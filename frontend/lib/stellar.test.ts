@@ -108,7 +108,13 @@ describe("signRentPayment", () => {
   it("returns an empty string when Freighter signs but yields no XDR", async () => {
     vi.mocked(isAllowed).mockResolvedValue({ isAllowed: true });
     vi.mocked(getAddress).mockResolvedValue({ address: FAKE_ADDR });
-    vi.mocked(signTransaction).mockResolvedValue({});
+    // Empty signedTxXdr collapses to "" via the `?? ""` fallback in
+    // signRentPayment. The full shape keeps the freighter return type
+    // happy under `tsc --noEmit`.
+    vi.mocked(signTransaction).mockResolvedValue({
+      signedTxXdr: "",
+      signerAddress: FAKE_ADDR,
+    });
 
     await expect(
       signRentPayment({ propertyId: "prop-2", amount: 1 }),
