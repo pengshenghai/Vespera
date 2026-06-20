@@ -78,9 +78,10 @@ export class PaymentService {
    * lines, audit records, or Sentry breadcrumbs. The caller passes the
    * dto and receives a scrubbed copy plus the seed in isolation.
    */
-  private extractTenantSecret(
-    dto: ProcessStellarRentGatewayDto,
-  ): { secret: string; scrubbed: Omit<ProcessStellarRentGatewayDto, 'tenantSecret'> } {
+  private extractTenantSecret(dto: ProcessStellarRentGatewayDto): {
+    secret: string;
+    scrubbed: Omit<ProcessStellarRentGatewayDto, 'tenantSecret'>;
+  } {
     const { tenantSecret, ...scrubbed } = dto;
     return { secret: tenantSecret, scrubbed };
   }
@@ -666,7 +667,9 @@ export class PaymentService {
       return saved;
     } catch (error) {
       const message =
-        error instanceof Error ? this.scrubSecret(error.message, secret) : 'Payment failed';
+        error instanceof Error
+          ? this.scrubSecret(error.message, secret)
+          : 'Payment failed';
 
       const failedPayment = this.paymentRepository.create({
         userId,
@@ -686,22 +689,34 @@ export class PaymentService {
       });
       await this.paymentRepository.save(failedPayment);
 
-      // Rethrow with the scrubbed message so the same protection
-      // applies to whatever catches it upstream (Sentry, the global
-      // exception filter, audit middleware, etc.).
-      if (error instanceof Error) {
-        throw new Error(message);
+      // Scrub the message in place and rethrow the original error so
+      // its prototype is preserved. Wrapping in `new Error(message)`
+      // would downgrade a typed BadRequestException /
+      // UnauthorizedException from processRentPayment into a generic
+      // Error, which Nest's exception filter would turn into a 500.
+      if (error instanceof Error && error.message !== message) {
+        try {
+          error.message = message;
+        } catch {
+          // .message can be non-writable on some Error subclasses
+          // (rare). Fall through and rethrow the original error —
+          // worst case the seed-bearing original message survives
+          // for this one frame, but the stored failure metadata is
+          // still scrubbed.
+        }
       }
       throw error;
     }
   }
 
   /**
-   * Defence-in-depth: if a downstream library ever interpolates the
-   * Stellar seed into an error message, strip it here before the
-   * message reaches storage or logs. The S-prefix + Stellar's
-   * base32 alphabet is distinctive enough that a literal replace
-   * is safe.
+   * Defence-in-depth: strip the literal Stellar seed from a message
+   * before it reaches storage or logs. This is BEST-EFFORT — only the
+   * exact full seed is replaced. A downstream library that emits a
+   * transformed or partial seed (e.g. truncated, base64-encoded,
+   * lowercased) would not be caught here, so this is a backstop, not
+   * the primary defence; the primary defence is never spreading the
+   * dto into metadata and never logging the seed in the first place.
    */
   private scrubSecret(message: string, secret: string): string {
     if (!secret || !message.includes(secret)) return message;

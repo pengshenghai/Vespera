@@ -21,7 +21,7 @@ export class ProcessStellarRentGatewayDto {
   @ApiProperty({
     description:
       '⚠️ SECURITY WARNING: Stellar SECRET seed (S-prefixed). ' +
-      'Submitting a seed lets the server spend the tenant\'s funds and ' +
+      "Submitting a seed lets the server spend the tenant's funds and " +
       'puts the seed in transit through any layer that captures request ' +
       'bodies (logs, audit trails, error trackers). Prefer the ' +
       'client-signed XDR flow once it is available. This endpoint is ' +
