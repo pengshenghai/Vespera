@@ -902,13 +902,7 @@ fn test_make_payment_with_token_rejects_amount_below_min() {
         .address();
 
     // Add token with min_amount = 500, max_amount = 10000
-    client.add_supported_token(
-        &token,
-        &String::from_str(&env, "USDC"),
-        &6,
-        &500,
-        &10000,
-    );
+    client.add_supported_token(&token, &String::from_str(&env, "USDC"), &6, &500, &10000);
 
     let agreement_id = client.create_agreement_with_token(&AgreementInput {
         agreement_id: String::from_str(&env, "PROP1").clone(),
@@ -953,13 +947,7 @@ fn test_make_payment_with_token_rejects_amount_above_max() {
         .address();
 
     // Add token with min_amount = 100, max_amount = 5000
-    client.add_supported_token(
-        &token,
-        &String::from_str(&env, "USDC"),
-        &6,
-        &100,
-        &5000,
-    );
+    client.add_supported_token(&token, &String::from_str(&env, "USDC"), &6, &100, &5000);
 
     let agreement_id = client.create_agreement_with_token(&AgreementInput {
         agreement_id: String::from_str(&env, "PROP1").clone(),
@@ -1004,13 +992,7 @@ fn test_make_payment_with_token_accepts_amount_within_bounds() {
         .address();
 
     // Add token with min_amount = 100, max_amount = 10000
-    client.add_supported_token(
-        &token,
-        &String::from_str(&env, "USDC"),
-        &6,
-        &100,
-        &10000,
-    );
+    client.add_supported_token(&token, &String::from_str(&env, "USDC"), &6, &100, &10000);
 
     let agreement_id = client.create_agreement_with_token(&AgreementInput {
         agreement_id: String::from_str(&env, "PROP1").clone(),

@@ -14,13 +14,13 @@ pub fn add_supported_token(
 ) -> Result<(), RentalError> {
     // Validate token bounds
     if min_amount < 0 {
-        return Err(RentalError::InvalidTokenBounds);
+        return Err(RentalError::InvalidConfig);
     }
     if max_amount < 0 {
-        return Err(RentalError::InvalidTokenBounds);
+        return Err(RentalError::InvalidConfig);
     }
     if min_amount > max_amount {
-        return Err(RentalError::InvalidTokenBounds);
+        return Err(RentalError::InvalidConfig);
     }
 
     let key = DataKey::SupportedToken(token_address.clone());

@@ -427,7 +427,7 @@ pub fn make_payment_with_token(
         .ok_or(RentalError::TokenNotSupported)?;
 
     if amount < supported_token.min_amount || amount > supported_token.max_amount {
-        return Err(RentalError::InvalidTokenBounds);
+        return Err(RentalError::InvalidAmount);
     }
 
     // Convert amount to the agreement's base token if they differ
