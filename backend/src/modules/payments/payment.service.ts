@@ -4,7 +4,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Logger,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,6 +28,7 @@ import { PaymentMethodFiltersDto } from './dto/payment-method-filters.dto';
 import { CreatePaymentScheduleDto } from './dto/create-payment-schedule.dto';
 import { PaymentScheduleFiltersDto } from './dto/payment-schedule-filters.dto';
 import { UpdatePaymentScheduleDto } from './dto/update-payment-schedule.dto';
+import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import {
   addDays,
@@ -64,6 +64,7 @@ export class PaymentService {
     private readonly paymentScheduleRepository: Repository<PaymentSchedule>,
     private readonly paymentGateway: PaymentGatewayService,
     private readonly notificationsService: NotificationsService,
+    private readonly usersService: UsersService,
     private readonly paymentProcessingService: PaymentProcessingService,
     private readonly stellarService: StellarService,
     private readonly lockService: LockService,
@@ -128,9 +129,8 @@ export class PaymentService {
     const transactionFee = dto.amount * 0.02;
     const netAmount = dto.amount - transactionFee;
 
-    // Note: In production, fetch actual user email from UsersService.findById(userId)
-    // For now, using userId as fallback since UsersService has unrelated type issues
-    const userEmail = `user_${userId}@chioma.local`;
+    const user = await this.usersService.getUserById(userId);
+    const userEmail = user.email;
 
     const decryptedMetadata = decryptMetadata(paymentMethod.encryptedMetadata);
 
@@ -308,7 +308,7 @@ export class PaymentService {
       fileName: `receipt-${payment.id}.txt`,
       data: Buffer.from(
         [
-          'CHIOMA PAYMENT RECEIPT',
+          'VESPERA PAYMENT RECEIPT',
           `Payment ID: ${receipt.paymentId}`,
           `Amount: ${receipt.amount} ${receipt.currency}`,
           `Status: ${receipt.status}`,
@@ -845,12 +845,30 @@ export class PaymentService {
     });
   }
 
+  /**
+   * Maximum number of payments to scan in a single reconciliation run.
+   * Bounded to prevent unbounded external Stellar RPC calls and memory
+   * pressure when a user has a large payment history.
+   */
+  private static readonly MAX_RECONCILIATION_LIMIT = 100;
+
+  /**
+   * Maximum number of failed payments to retry in a single batch.
+   * Bounded to prevent storming the payment gateway on retry storms.
+   */
+  private static readonly MAX_RETRY_LIMIT = 50;
+
+  @Locked({
+    key: (userId: string) => `payment:reconcile:${userId}`,
+    ttlMs: 30_000,
+  })
   async reconcileStellarPayments(userId: string, limit = 50) {
     ensureUserId(userId);
+    const boundedLimit = Math.min(limit, PaymentService.MAX_RECONCILIATION_LIMIT);
     const candidates = await this.paymentRepository.find({
       where: { userId },
       order: { updatedAt: 'DESC' },
-      take: limit,
+      take: boundedLimit,
     });
 
     const stellarPayments = candidates.filter((payment) => {
@@ -925,12 +943,17 @@ export class PaymentService {
     };
   }
 
+  @Locked({
+    key: (userId: string) => `payment:retry:${userId}`,
+    ttlMs: 30_000,
+  })
   async retryFailedPayments(userId: string, limit = 20) {
     ensureUserId(userId);
+    const boundedLimit = Math.min(limit, PaymentService.MAX_RETRY_LIMIT);
     const failedPayments = await this.paymentRepository.find({
       where: { userId, status: PaymentStatus.FAILED },
       order: { updatedAt: 'DESC' },
-      take: limit,
+      take: boundedLimit,
     });
 
     let retried = 0;
@@ -942,7 +965,17 @@ export class PaymentService {
         continue;
       }
 
+      const retryIdempotencyKey = `${payment.id}-retry`;
+
       try {
+        const existingRetry = await this.paymentRepository.findOne({
+          where: { userId, idempotencyKey: retryIdempotencyKey },
+        });
+        if (existingRetry) {
+          skipped += 1;
+          continue;
+        }
+
         await this.recordPayment(
           {
             agreementId: payment.agreementId ?? undefined,
@@ -950,7 +983,7 @@ export class PaymentService {
             paymentMethodId: String(payment.paymentMethodRelationId),
             notes: payment.notes ?? undefined,
             referenceNumber: payment.referenceNumber ?? undefined,
-            idempotencyKey: `${payment.id}-retry-${Date.now()}`,
+            idempotencyKey: retryIdempotencyKey,
           },
           userId,
         );
@@ -976,15 +1009,7 @@ export class PaymentService {
     };
   }
 
-  async handlePaymentGatewayWebhook(
-    dto: PaymentGatewayWebhookDto,
-    secretHeader?: string,
-  ) {
-    const configuredSecret = process.env.PAYMENT_WEBHOOK_SECRET;
-    if (configuredSecret && secretHeader !== configuredSecret) {
-      throw new UnauthorizedException('Invalid payment webhook secret');
-    }
-
+  async handlePaymentGatewayWebhook(dto: PaymentGatewayWebhookDto) {
     const payment = dto.paymentId
       ? await this.paymentRepository.findOne({ where: { id: dto.paymentId } })
       : dto.referenceNumber

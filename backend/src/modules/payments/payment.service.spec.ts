@@ -16,6 +16,7 @@ import {
 } from './entities/payment-schedule.entity';
 import { PaymentGatewayService } from './payment-gateway.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { UsersService } from '../users/users.service';
 import { PaymentStatus } from './entities/payment.entity';
 import { CreatePaymentRecordDto } from './dto/record-payment.dto';
 import { ProcessRefundDto } from './dto/process-refund.dto';
@@ -143,7 +144,7 @@ describe('PaymentService', () => {
           useValue: mockNotificationsService,
         },
         {
-          provide: Object,
+          provide: UsersService,
           useValue: mockUsersService,
         },
         {
@@ -288,6 +289,56 @@ describe('PaymentService', () => {
         expect.stringContaining('100'),
         'PAYMENT_FAILED',
       );
+    });
+  });
+
+  describe('generateReceipt', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns receipt with real user email and Vespera branding', async () => {
+      const userEmail = 'john.doe@example.com';
+      const userId = 'user_123';
+
+      mockUsersService.getUserById.mockResolvedValue({
+        id: userId,
+        email: userEmail,
+      });
+
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 'pay_1',
+        amount: 150.0,
+        currency: 'NGN',
+        status: PaymentStatus.COMPLETED,
+        processedAt: new Date('2026-06-01T12:00:00Z'),
+        referenceNumber: 'ref_001',
+        user: { id: userId, email: userEmail },
+        paymentMethodRelation: {
+          paymentType: 'card',
+          lastFour: '4242',
+        },
+      });
+
+      const result = await service.generateReceipt('pay_1', userId);
+
+      expect(result.receipt.user.email).toBe(userEmail);
+      expect(result.receipt.paymentId).toBe('pay_1');
+      expect(result.contentType).toBe('text/plain');
+      expect(result.fileName).toBe('receipt-pay_1.txt');
+
+      // Decode base64 data and check for Vespera branding
+      const decoded = Buffer.from(result.data, 'base64').toString('utf8');
+      expect(decoded).toContain('VESPERA PAYMENT RECEIPT');
+      expect(decoded).toContain(userEmail);
+    });
+
+    it('throws NotFoundException when payment does not exist', async () => {
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        service.generateReceipt('nonexistent', 'user_1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -767,6 +818,7 @@ describe('PaymentService', () => {
           metadata: {},
         },
       ]);
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
       const recordSpy = jest
         .spyOn(service, 'recordPayment')
         .mockResolvedValue({ id: 'retry_success' } as Payment);
@@ -778,7 +830,65 @@ describe('PaymentService', () => {
       const result = await service.retryFailedPayments('user_1', 10);
 
       expect(result.retried).toBe(1);
+      expect(result.skipped).toBe(0);
       expect(recordSpy).toHaveBeenCalled();
+    });
+
+    it('deduplicates retries via stable idempotency key', async () => {
+      (paymentRepository.find as jest.Mock).mockResolvedValue([
+        {
+          id: 'pay_dup',
+          userId: 'user_1',
+          status: PaymentStatus.FAILED,
+          amount: 150,
+          paymentMethodRelationId: 2,
+          agreementId: 'agreement_1',
+          referenceNumber: 'ref_1',
+          metadata: {},
+        },
+      ]);
+
+      const recordSpy = jest
+        .spyOn(service, 'recordPayment')
+        .mockResolvedValue({ id: 'retry_1' } as Payment);
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_dup',
+        metadata: { retryAttempts: 1 },
+      });
+
+      (paymentRepository.findOne as jest.Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 'retry_1', idempotencyKey: 'pay_dup-retry' });
+
+      const firstResult = await service.retryFailedPayments('user_1', 10);
+      expect(firstResult.retried).toBe(1);
+      expect(firstResult.skipped).toBe(0);
+      expect(recordSpy).toHaveBeenCalledTimes(1);
+
+      const secondResult = await service.retryFailedPayments('user_1', 10);
+      expect(secondResult.retried).toBe(0);
+      expect(secondResult.skipped).toBe(1);
+      expect(recordSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('clamps retry limit to MAX_RETRY_LIMIT', async () => {
+      (paymentRepository.find as jest.Mock).mockResolvedValue([]);
+
+      await service.retryFailedPayments('user_1', 500);
+
+      expect(paymentRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 50 } as Partial<Record<string, unknown>>),
+      );
+    });
+
+    it('clamps reconciliation limit to MAX_RECONCILIATION_LIMIT', async () => {
+      (paymentRepository.find as jest.Mock).mockResolvedValue([]);
+
+      await service.reconcileStellarPayments('user_1', 500);
+
+      expect(paymentRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 100 } as Partial<Record<string, unknown>>),
+      );
     });
 
     it('builds payment analytics summary', async () => {
